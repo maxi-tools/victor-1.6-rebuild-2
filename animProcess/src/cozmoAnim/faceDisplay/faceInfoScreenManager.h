@@ -147,7 +147,8 @@ private:
                            bool& buttonPressedEvent,
                            bool& buttonReleasedEvent,
                            bool& singlePressDetected, 
-                           bool& doublePressDetected);
+                           bool& doublePressDetected,
+                           bool& triplePressDetected); //added by claudix29
   
   // Returns true if screenName is one of the screens that allow the user to enter pairing when
   // double pressing the backpack and on the charger
