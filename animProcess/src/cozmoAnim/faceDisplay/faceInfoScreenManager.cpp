@@ -1188,12 +1188,12 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
                                                 bool& buttonReleasedEvent,
                                                 bool& singlePressDetected, 
                                                 bool& doublePressDetected,
-                                                bool& triplePressDetected) //added by claudix29
+                                                bool& triplePressDetected) // clx29
 {
   static u32  lastPressTime_ms   = 0;
   static bool singlePressPending = false;
   static bool doublePressPending = false;
-  static bool triplePressPending = false; //added by claudix29
+  static bool triplePressPending = false; // clx29
   static bool buttonWasPressed   = false;
 
   // Whether or not the shutdown message was already sent
@@ -1204,48 +1204,50 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
   buttonWasPressed = buttonPressed;
   singlePressDetected = false;
   doublePressDetected = false;
-  triplePressDetected = false; //added by claudix29
+  triplePressDetected = false; // clx29 (reset)
 
   // The maximum amount of time allowed between button releases
-  // to register as a double press
   static const u32 kDoublePressWindow_ms   = 400;
 
   const u32  curTime_ms         = BaseStationTimer::getInstance()->GetCurrentTimeStamp();
   const bool mightBeDoublePress = (lastPressTime_ms > 0) && (curTime_ms - lastPressTime_ms < kDoublePressWindow_ms);
-  const bool mightBeTriplePress = doublePressPending && (curTime_ms - lastPressTime_ms < kDoublePressWindow_ms); //clx29
+
+  const bool mightBeTriplePress = doublePressPending && mightBeDoublePress;
 
   if (buttonPressedEvent) {
-     if (mightBeTriplePress) { //clx29
-        doublePressPending = false;
-        singlePressPending = false;
-        triplePressPending = true;   //clx29
+    if (mightBeTriplePress) { //clx29
+      lastPressTime_ms = 0;
+      doublePressPending = false;
+      singlePressPending = false;
+      triplePressPending = true;
     } else if (mightBeDoublePress) {
-        lastPressTime_ms = curTime_ms;
-        doublePressPending = true;
-        singlePressPending = false;
-    } else {
-        lastPressTime_ms = curTime_ms;
+      lastPressTime_ms = curTime_ms;
+      singlePressPending = false;
+      lastPressTime_ms = curTime_ms;
     }
-} else if (buttonReleasedEvent) {
-
-      if (triplePressPending) {
+  } else if (buttonReleasedEvent) {
+    if (triplePressPending) { // clx29
         triplePressPending = false;
         triplePressDetected = true;
-        lastPressTime_ms = 0;
-    } else if (doublePressPending) {
-        doublePressPending = false;
-        doublePressDetected = true;
-        lastPressTime_ms = 0;
-   }  else if (lastPressTime_ms > 0) {
-        singlePressPending = false;
-        singlePressDetected = true;
-        lastPressTime_ms = 0;
     }
+    // clx29
+    else if (lastPressTime_ms > 0 && !doublePressPending) { // first release
+      singlePressPending = true;
+    }
+
     shutdownSent = false;
-  } else if (singlePressPending && !mightBeDoublePress) {
+
+  } else if ((singlePressPending || doublePressPending) && !mightBeDoublePress) { //clx29 double press pending
+    if (doublePressPending) {
+        doublePressDetected = true;
+        doublePressPending = false;
+        lastPressTime_ms = 0;
+    } else if (singlePressPending) {
+        singlePressDetected = true;
+        singlePressPending = false;
+    }
+
     lastPressTime_ms = 0;
-    singlePressPending = false;
-    singlePressDetected = true;
   }
 
   // Check if button was held down long enough for shutdown animation to start
@@ -1261,15 +1263,20 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
     singlePressDetected = false;
     doublePressPending  = false;
     doublePressDetected = false;
+    triplePressPending  = false; // clx29
+    triplePressDetected = false; // clx29
     shutdownSent        = true;
   }
-  
+
 #if ANKI_DEV_CHEATS
   if( kFakeButtonPressType == 1 ) { // single press
     singlePressDetected = true;
     kFakeButtonPressType = 0;
   } else if( kFakeButtonPressType == 2 ) { // double press
     doublePressDetected = true;
+    kFakeButtonPressType = 0;
+  } else if( kFakeButtonPressType == 3 ) { // triple press - clx29
+    triplePressDetected = true;
     kFakeButtonPressType = 0;
   }
 #endif
