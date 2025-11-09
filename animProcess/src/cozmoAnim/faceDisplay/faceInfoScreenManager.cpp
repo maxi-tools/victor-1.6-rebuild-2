@@ -1215,14 +1215,16 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
   const bool mightBeTriplePress = doublePressPending && mightBeDoublePress;
 
   if (buttonPressedEvent) {
-    if (mightBeTriplePress) { //clx29
+    if (mightBeTriplePress) { //cl29
       lastPressTime_ms = 0;
       doublePressPending = false;
       singlePressPending = false;
       triplePressPending = true;
     } else if (mightBeDoublePress) {
       lastPressTime_ms = curTime_ms;
+      doublePressPending = true;
       singlePressPending = false;
+    } else {
       lastPressTime_ms = curTime_ms;
     }
   } else if (buttonReleasedEvent) {
@@ -1269,6 +1271,7 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
   }
 
 #if ANKI_DEV_CHEATS
+
   if( kFakeButtonPressType == 1 ) { // single press
     singlePressDetected = true;
     kFakeButtonPressType = 0;
