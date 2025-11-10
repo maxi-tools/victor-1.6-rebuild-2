@@ -181,6 +181,7 @@ void EngineRobotAudioClient::SubscribeAudioCallbackMessages( Robot* robot )
   doRobotSubscribe(RobotInterface::RobotToEngineTag::audioCallbackMarker, &EngineRobotAudioClient::HandleRobotEngineMessage);
   doRobotSubscribe(RobotInterface::RobotToEngineTag::audioCallbackComplete, &EngineRobotAudioClient::HandleRobotEngineMessage);
   doRobotSubscribe(RobotInterface::RobotToEngineTag::audioCallbackError, &EngineRobotAudioClient::HandleRobotEngineMessage);
+  doRobotSubscribe(RobotInterface::RobotToEngineTag::updateVolume, &EngineRobotAudioClient::HandleRobotEngineMessage); // Amy (hamsteronpotato)
   
   // Add Listeners to GameToEngine messages
   auto robotVolumeCallbackFunc = [this] ( const AnkiEvent<ExternalInterface::MessageGameToEngine>& message )
@@ -227,7 +228,34 @@ void EngineRobotAudioClient::HandleRobotEngineMessage( const AnkiEvent<RobotInte
     case RobotInterface::RobotToEngine::Tag::audioCallbackError:
       HandleCallbackEvent( message.GetData().Get_audioCallbackError() );
       break;
-      
+
+    case RobotInterface::RobotToEngine::Tag::updateVolume: // Amy (hamsteronpotato)
+    {
+      external_interface::Volume volume = external_interface::Volume::MUTE;
+      switch (message.GetData().Get_updateVolume().volumeLevel) {
+        case 0:
+          volume = external_interface::Volume::MUTE;
+          break;
+        case 1:
+          volume = external_interface::Volume::LOW;
+          break;
+        case 2:
+          volume = external_interface::Volume::MEDIUM_LOW;
+          break;
+        case 3:
+          volume = external_interface::Volume::MEDIUM;
+          break;
+        case 4:
+          volume = external_interface::Volume::MEDIUM_HIGH;
+          break;
+        case 5:
+          volume = external_interface::Volume::HIGH;
+          break;
+      }
+      SetRobotMasterVolume(volume);
+      break;
+    }
+
     default:
       PRINT_NAMED_ERROR("EngineRobotAudioClient.HandleRobotEngineMessage", "Unexpected message type");
       break;

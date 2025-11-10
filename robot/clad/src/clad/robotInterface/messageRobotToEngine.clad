@@ -170,6 +170,10 @@ message SendRangeData
   bool enable
 }
 
+message UpdateVolume {
+  uint_8 volumeLevel // don't go above 5
+} // Amy (hamsteronpotato)
+
 /// *************** Overall message pipe ******************************* ///
 
 /** Pipe from robot to engine.
@@ -269,6 +273,8 @@ union RobotToEngine {
   AlexaAuthChanged           alexaAuthChanged       = 0xEC,
   AlexaUXChanged             alexaUXChanged         = 0xED,
 
+  // Volume
+  UpdateVolume               updateVolume           = 0xEE, // Amy (hamsteronpotato)
 
   // ====== 0xF0 to 0x FE: Unreliable message to the Engine =====
   // From robot process

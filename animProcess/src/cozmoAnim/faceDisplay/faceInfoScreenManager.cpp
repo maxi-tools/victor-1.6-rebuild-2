@@ -155,6 +155,8 @@ namespace {
 
   // How long the button needs to be pressed for before it should trigger shutdown animation
   CONSOLE_VAR( u32, kButtonPressDurationForShutdown_ms, "FaceInfoScreenManager", 500 );
+
+  CONSOLE_VAR_RANGED(int, kUnmuteVolumeLevel, "FaceInfoScreenManager", 3, 0, 5); // Amy (hamsteronpotato)
 #if ANKI_DEV_CHEATS
   // Fake one of several types of button presses. This value will get reset immediately, so to
   // run it again from the web interface, first set it to NoOp
@@ -1350,6 +1352,20 @@ void FaceInfoScreenManager::ProcessMenuNavigation(const RobotState& state)
   {
     ToggleMute("DOUBLE_PRESS");
   }
+
+  if (triplePressDetected && _engineLoaded) {
+    if (!_isMuted) {
+      RobotInterface::UpdateVolume volume;
+      volume.volumeLevel = 0;
+      RobotInterface::SendAnimToEngine(volume);
+      _isMuted = true;
+    } else {
+      RobotInterface::UpdateVolume volume;
+      volume.volumeLevel = kUnmuteVolumeLevel;
+      RobotInterface::SendAnimToEngine(volume);
+      _isMuted = false;
+    }
+  } // Amy (hamsteronpotato)
 
   // Check for button press to go to next debug screen
   if (buttonReleasedEvent) {
