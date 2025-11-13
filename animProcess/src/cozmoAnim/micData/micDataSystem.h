@@ -114,7 +114,9 @@ public:
   void SetButtonWakeWordIsAlexa(bool isAlexa);
   
   void ToggleMicMute();
+  void ToggleSpeakerMute();
   bool IsMicMuted() const { return _micMuted; }
+  bool IsSpeakerMuted() const { return _speakerMuted; }
   
   void UpdateLocale(const Util::Locale& newLocale);
   
@@ -205,6 +207,7 @@ private:
   AlexaSimpleState _alexaState;
   
   std::atomic<bool> _micMuted;
+  std::atomic<bool> _speakerMuted;
 
   // if hey vector is spoken, we'll need to abort the alexa pairing screen if it's active. The overly verbose
   // name is becuase we hardcode the "reason" that we are leaving the pairing screen based on the assumption

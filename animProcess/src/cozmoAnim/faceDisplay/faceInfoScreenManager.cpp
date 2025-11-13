@@ -1370,17 +1370,17 @@ void FaceInfoScreenManager::ProcessMenuNavigation(const RobotState& state)
     _engineLoaded &&
     CanEnterPairingFromScreen(currScreenName)) {
     if (!_isSpeakerMuted) {
+      ToggleSpeakerMute("TRIPLE_PRESS");
       RobotInterface::UpdateVolume volume;
       volume.volumeLevel = 0;
       RobotInterface::SendAnimToEngine(volume);
       _isSpeakerMuted = true;
-      ToggleSpeakerMute("TRIPLE_PRESS");
     } else {
+      ToggleSpeakerMute("TRIPLE_PRESS");
       RobotInterface::UpdateVolume volume;
       volume.volumeLevel = kUnmuteVolumeLevel;
       RobotInterface::SendAnimToEngine(volume);
       _isSpeakerMuted = false;
-      ToggleSpeakerMute("TRIPLE_PRESS");
     }
   } // Amy (hamsteronpotato) && // Emily (Switch_modder)
 
@@ -2106,7 +2106,7 @@ void FaceInfoScreenManager::DrawSpeakerMuteAnimation() // Emily (Switch_modder),
   if( _currScreen == nullptr ) {
     return;
   }
-  const bool speakerMuted = _isSpeakerMuted;
+  const bool speakerMuted = _context->GetMicDataSystem()->IsSpeakerMuted();
   // The value of muted was set prior to this method call, so indicates a transition _to_ that state,
   // so play the on/off or off/on anim to reflect that
   const std::string animName = speakerMuted ? "anim_speakerstate_speakeroff_01" : "anim_speakerstate_speakeron_01";
@@ -2374,6 +2374,7 @@ void FaceInfoScreenManager::ToggleMute(const std::string& reason)
 
 void FaceInfoScreenManager::ToggleSpeakerMute(const std::string& reason) // Emily (Switch_modder), Copied from above
 {
+  _context->GetMicDataSystem()->ToggleSpeakerMute();
 
   if(_isSpeakerMuted) {
     DASMSG(speaker_off_message, "robot.speaker_off", "Speaker disabled (muted)");
