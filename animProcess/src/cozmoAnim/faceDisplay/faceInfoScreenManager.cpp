@@ -1366,7 +1366,9 @@ void FaceInfoScreenManager::ProcessMenuNavigation(const RobotState& state)
     ToggleMute("DOUBLE_PRESS");
   }
 
-  if (triplePressDetected && _engineLoaded) {
+  if (triplePressDetected &&
+    _engineLoaded &&
+    CanEnterPairingFromScreen(currScreenName)) {
     if (!_isSpeakerMuted) {
       RobotInterface::UpdateVolume volume;
       volume.volumeLevel = 0;
