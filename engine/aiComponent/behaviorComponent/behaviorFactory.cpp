@@ -161,6 +161,7 @@
 #include "engine/aiComponent/behaviorComponent/behaviors/reactions/behaviorReactToUncalibratedHeadAndLift.h"
 #include "engine/aiComponent/behaviorComponent/behaviors/reactions/behaviorReactToUnexpectedMovement.h"
 #include "engine/aiComponent/behaviorComponent/behaviors/reactions/behaviorReactToVoiceCommand.h"
+#include "engine/aiComponent/behaviorComponent/behaviors/rebootRobot/behaviorPowerRobotOff.h"
 #include "engine/aiComponent/behaviorComponent/behaviors/robotDrivenDialog/behaviorPromptUserForVoiceCommand.h"
 #include "engine/aiComponent/behaviorComponent/behaviors/sdkBehaviors/behaviorSDKInterface.h"
 #include "engine/aiComponent/behaviorComponent/behaviors/sdkBehaviors/behaviorSDKLock.h"
@@ -1122,7 +1123,13 @@ ICozmoBehaviorPtr BehaviorFactory::CreateBehavior(const Json::Value& config)
       newBehavior = ICozmoBehaviorPtr(new BehaviorReactToVoiceCommand(config));
       break;
     }
-    
+
+    case BehaviorClass::PowerRobotOff:
+    {
+      newBehavior = ICozmoBehaviorPtr(new BehaviorPowerRobotOff(config));
+      break;
+    }
+
     case BehaviorClass::PromptUserForVoiceCommand:
     {
       newBehavior = ICozmoBehaviorPtr(new BehaviorPromptUserForVoiceCommand(config));

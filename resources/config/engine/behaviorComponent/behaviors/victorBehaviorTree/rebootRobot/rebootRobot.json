@@ -1,0 +1,12 @@
+
+{
+  "behaviorID"       : "PowerRobotOff",
+  "behaviorClass"    : "PowerRobotOff",
+
+  "associatedActiveFeature": "NoFeature",
+
+  "respondToUserIntents": [
+    { "type": "victor_reboot" },
+    { "type": "victor_shutdown" }
+  ]
+}

@@ -235,6 +235,9 @@ enum uint_8 BehaviorClass {
   ReactToUnexpectedMovement,
   ReactToVoiceCommand,
 
+  // rebootRobot
+  PowerRobotOff,
+
   // robotDrivenDialog
   PromptUserForVoiceCommand,
 

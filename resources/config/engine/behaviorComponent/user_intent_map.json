@@ -333,6 +333,14 @@
       "user_intent": "imperative_eyecolor",
       "cloud_intent": "intent_imperative_eyecolor",
       "feature_gate": "EyeColorVC"
+    },
+    {
+      "cloud_intent": "intent_victor_reboot",
+      "user_intent": "victor_reboot"
+    },
+    {
+      "cloud_intent": "intent_victor_shutdown",
+      "user_intent": "victor_shutdown"
     }
   ],
 

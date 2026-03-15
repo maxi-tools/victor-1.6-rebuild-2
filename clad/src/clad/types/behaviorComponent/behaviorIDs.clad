@@ -448,6 +448,9 @@ enum uint_16 BehaviorID {
   StuckOnEdge,
   TriggerWordWithoutIntent,
 
+  // victorBehaviorTree/rebootRobot
+  PowerRobotOff,
+
   // victorBehaviorTree
   ResetSafely,
 
