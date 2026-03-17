@@ -4,7 +4,7 @@
  * Author: Kevin M. Karol
  * Created: 2018-07-18
  *
- * Description: Behavior which plays power on/off animations in response to the power button being held down
+ * Description: Behavior which powers off or reboots the robot
  *
  * Copyright: Anki, Inc. 2018
  *
@@ -114,9 +114,8 @@ void BehaviorPowerRobotOff::OnBehaviorEnteredActivatableScope()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void BehaviorPowerRobotOff::OnBehaviorActivated()
 {
-  UserIntentComponent &uic = GetBehaviorComp<UserIntentComponent>();
-  UserIntentPtr intentDataReboot = uic.GetUserIntentIfActive(USER_INTENT(victor_reboot));
-  UserIntentPtr intentDataShutdown = uic.GetUserIntentIfActive(USER_INTENT(victor_shutdown));
+  UserIntentPtr intentDataReboot   = SmartActivateUserIntent(USER_INTENT(victor_reboot));
+  UserIntentPtr intentDataShutdown = SmartActivateUserIntent(USER_INTENT(victor_shutdown));
 
   // reset dynamic variables
   const bool prevShouldStartPowerOffAnimaiton = _dVars.shouldStartPowerOffAnimaiton;
