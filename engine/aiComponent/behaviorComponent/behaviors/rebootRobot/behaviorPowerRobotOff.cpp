@@ -27,7 +27,6 @@ namespace Anki {
 namespace Vector {
 
 namespace{
-const char* kPowerButtonActivationKey = "powerButtonHeldToActivate_ms";
 const char* kPowerOnAnimName          = "powerOnAnimName";
 const char* kPowerOffAnimName         = "powerOffAnimName";
 const char* const kWaitForAnimMsgKey  = "waitForAnimMsg";
@@ -98,8 +97,6 @@ void BehaviorPowerRobotOff::GetBehaviorJsonKeys(std::set<const char*>& expectedK
   const char* list[] = {
     kPowerOnAnimName,
     kPowerOffAnimName,
-    kPowerButtonActivationKey,
-    kWaitForAnimMsgKey,
   };
   expectedKeys.insert( std::begin(list), std::end(list) );
 }
@@ -114,8 +111,9 @@ void BehaviorPowerRobotOff::OnBehaviorEnteredActivatableScope()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void BehaviorPowerRobotOff::OnBehaviorActivated()
 {
-  UserIntentPtr intentDataReboot   = SmartActivateUserIntent(USER_INTENT(victor_reboot));
-  UserIntentPtr intentDataShutdown = SmartActivateUserIntent(USER_INTENT(victor_shutdown));
+  UserIntentComponent& uic = GetBehaviorComp<UserIntentComponent>();
+  UserIntentPtr intentDataReboot   = uic.GetUserIntentIfActive(USER_INTENT(victor_reboot));
+  UserIntentPtr intentDataShutdown = uic.GetUserIntentIfActive(USER_INTENT(victor_shutdown));
 
   // reset dynamic variables
   const bool prevShouldStartPowerOffAnimaiton = _dVars.shouldStartPowerOffAnimaiton;
@@ -128,9 +126,13 @@ void BehaviorPowerRobotOff::OnBehaviorActivated()
   }
 
   if (intentDataShutdown) {
-    (void)system("/usr/bin/voff");
+    int ret = system("/usr/bin/sudo /usr/bin/voff");
+    PRINT_NAMED_INFO("BehaviorPowerRobotOff.OnBehaviorActivated",
+                     "voff returned: %d", ret);
   } else if (intentDataReboot) {
-    (void)system("/usr/sbin/reboot");
+    int ret = system("/usr/bin/sudo /usr/sbin/reboot");
+    PRINT_NAMED_INFO("BehaviorPowerRobotOff.OnBehaviorActivated",
+                     "reboot returned: %d", ret);
   }
 
   TransitionToPoweringOff();

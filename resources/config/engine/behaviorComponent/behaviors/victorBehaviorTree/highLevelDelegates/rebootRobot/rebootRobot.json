@@ -8,5 +8,8 @@
   "respondToUserIntents": [
     { "type": "victor_reboot" },
     { "type": "victor_shutdown" }
-  ]
+  ],
+
+  "powerOnAnimName" : "anim_power_offon_01",
+  "powerOffAnimName" : "anim_power_onoff_01"
 }
