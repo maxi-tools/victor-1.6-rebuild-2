@@ -394,7 +394,7 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_MENU_ITEM(ConfigurationSubmenu3, "EXIT", Main);
   ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu3, "PREV PAGE", incSlotDown);
   ADD_MENU_ITEM(ConfigurationSubmenu3, "TOGGLE UPDATING", AutoUpdates);
-  ADD_MENU_ITEM(ConfigurationSubmenu3, "DTTB RANDOM COLORS", DTTBRandomEyes);
+  ADD_MENU_ITEM(ConfigurationSubmenu3, "DTTB RANDOM EYES", DTTBRandomEyes);
   DISABLE_TIMEOUT(ConfigurationSubmenu)
 
   // === User Data Menu ===
