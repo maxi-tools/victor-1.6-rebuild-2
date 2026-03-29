@@ -112,6 +112,7 @@ void BehaviorBlackJack::GetBehaviorOperationModifiers(BehaviorOperationModifiers
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void BehaviorBlackJack::GetAllDelegates(std::set<IBehavior*>& delegates) const
 {
+  delegates.insert( _iConfig.driveOffChargerBehavior.get() );
   delegates.insert(_iConfig.hitOrStandPromptBehavior.get());
   delegates.insert(_iConfig.playAgainPromptBehavior.get());
   delegates.insert(_iConfig.ttsBehavior.get());
@@ -129,6 +130,9 @@ bool BehaviorBlackJack::WantsToBeActivatedBehavior() const
 void BehaviorBlackJack::InitBehavior()
 {
   const auto& BC = GetBEI().GetBehaviorContainer();
+
+  _iConfig.driveOffChargerBehavior = BC.FindBehaviorByID( BEHAVIOR_ID( DriveOffChargerStraight ) );
+
   BC.FindBehaviorByIDAndDowncast( BEHAVIOR_ID(BlackJackHitOrStandPrompt),
                                   BEHAVIOR_CLASS(PromptUserForVoiceCommand),
                                   _iConfig.hitOrStandPromptBehavior );
@@ -189,8 +193,24 @@ void BehaviorBlackJack::OnBehaviorActivated()
     }
   }
 
+  bool skipLookForFace = false;
+
+  if ( GetBEI().GetRobotInfo().IsOnChargerPlatform() &&
+      _iConfig.driveOffChargerBehavior->WantsToBeActivated() ) {
+      DelegateIfInControl(_iConfig.driveOffChargerBehavior.get(),
+                          &BehaviorBlackJack::TransitionToTurnToFace);
+      return;
+  } else if ( GetBEI().GetRobotInfo().IsOnChargerPlatform() &&
+      !_iConfig.driveOffChargerBehavior->WantsToBeActivated() ) {
+      skipLookForFace = true;
+  }
+
   // --- On With the Game ---
-  TransitionToTurnToFace();
+  if (skipLookForFace && GetBEI().GetRobotInfo().IsOnChargerPlatform()) {
+    TransitionToGetIn();
+  } else {
+    TransitionToTurnToFace();
+  }
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

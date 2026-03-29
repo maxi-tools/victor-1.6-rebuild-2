@@ -97,6 +97,7 @@ private:
 
   struct InstanceConfig {
     InstanceConfig();
+    ICozmoBehaviorPtr driveOffChargerBehavior;
     std::shared_ptr<BehaviorPromptUserForVoiceCommand> hitOrStandPromptBehavior;
     std::shared_ptr<BehaviorPromptUserForVoiceCommand> playAgainPromptBehavior;
     std::shared_ptr<BehaviorTextToSpeechLoop>          ttsBehavior;
