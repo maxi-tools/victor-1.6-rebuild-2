@@ -57,7 +57,6 @@ namespace {
 
   bool s_enteredAnyScreen = false;
 
-  bool isWP = false;
   bool showingPrePin = false;
 }
 
@@ -81,14 +80,16 @@ bool DrawStartPairingScreen(Anim::AnimationStreamer* animStreamer)
   cv::Size textSize;
   float scale = 0;
 
+  std::string kURL;
+
   if (Util::FileUtils::FileExists("/data/data/server_config.json")) {
-    isWP = true;
+    kURL = kURLWP;
   } else {
-    isWP = false;
+    kURL = kURLDef;
   }
 
-  Vision::Image::MakeTextFillImageWidth(isWP ? kURLWP : kURLDef, cv::QT_FONT_NORMAL, 1, img->GetNumCols(), textSize, scale);
-  img->DrawTextCenteredHorizontally(isWP ? kURLWP : kURLDef, cv::QT_FONT_NORMAL, scale, 1, kColor, (FACE_DISPLAY_HEIGHT + textSize.height)/2, true);
+  Vision::Image::MakeTextFillImageWidth(kURL, cv::QT_FONT_NORMAL, 1, img->GetNumCols(), textSize, scale);
+  img->DrawTextCenteredHorizontally(kURL, cv::QT_FONT_NORMAL, scale, 1, kColor, (FACE_DISPLAY_HEIGHT + textSize.height)/2, true);
 
   auto handle = std::make_shared<Vision::SpriteWrapper>(img);
   const bool shouldRenderInEyeHue = false;
