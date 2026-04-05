@@ -30,9 +30,9 @@ namespace Anki {
 namespace Vector {
 
 namespace {
-  CONSOLE_VAR_RANGED( float, kHandReaction_DriveForwardSpeed_mmps, "Behavior.ReactToHand", 100.0f, 0.f, MAX_SAFE_WHEEL_SPEED_MMPS);
+  CONSOLE_VAR_RANGED( float, kHandReaction_DriveForwardSpeed_mmps, "Behavior.ReactToHand", 120.0f, 0.f, MAX_SAFE_WHEEL_SPEED_MMPS);
   CONSOLE_VAR_RANGED( float, kReactToHand_DriveDistanceFraction,   "Behavior.ReactToHand", 1.f, 0.f, 1.f);
-  CONSOLE_VAR_RANGED( float, kReactToHand_PitchAngleThresh_deg,    "Behavior.ReactToHand", 2.f, 0.f, 10.f);
+  CONSOLE_VAR_RANGED( float, kReactToHand_PitchAngleThresh_deg,    "Behavior.ReactToHand", 3.f, 0.f, 10.f);
 }
   
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
