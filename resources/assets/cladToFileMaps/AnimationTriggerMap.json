@@ -968,6 +968,10 @@
     "AnimName": "ag_lookatphone_loop"
   },
   {
+    "CladEvent": "OnboardingLookAtPhoneWPLoop",
+    "AnimName": "ag_lookatphone_wp_loop"
+  },
+  {
     "CladEvent": "OnboardingLookAtPhoneDown",
     "AnimName": "ag_lookatphone_getout"
   },

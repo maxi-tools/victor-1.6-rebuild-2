@@ -325,6 +325,7 @@ enum int_32 AnimationTrigger
   OnboardingLookForCube,
   OnboardingLookAtPhoneUp,
   OnboardingLookAtPhoneLoop,
+  OnboardingLookAtPhoneWPLoop,
   OnboardingLookAtPhoneDown,
   OnboardingLookAtUser,
   OnboardingListenGetIn,

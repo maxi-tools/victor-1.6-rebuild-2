@@ -134,7 +134,7 @@ void BehaviorOnboardingLookAtPhone::BehaviorUpdate()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void BehaviorOnboardingLookAtPhone::MoveHeadUp()
 {
-  if(_hasBleKeys && !Util::FileUtils::FileExists("/data/data/server_config.json")) {
+  if(_hasBleKeys) {
     GetBehaviorComp<OnboardingMessageHandler>().ShowUrlFace(false);
     auto* action = new TriggerLiftSafeAnimationAction{ AnimationTrigger::OnboardingLookAtPhoneUp };
     action->SetRenderInEyeHue( false );
@@ -151,7 +151,11 @@ void BehaviorOnboardingLookAtPhone::MoveHeadUp()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void BehaviorOnboardingLookAtPhone::RunLoopAction()
 {
-  auto* loopAction = new ReselectingLoopAnimationAction{ AnimationTrigger::OnboardingLookAtPhoneLoop };
+  bool isWP = false;
+  if (Util::FileUtils::FileExists("/data/data/server_config.json")) {
+    isWP = true;
+  }
+  auto* loopAction = new ReselectingLoopAnimationAction{ isWP ? AnimationTrigger::OnboardingLookAtPhoneWPLoop : AnimationTrigger::OnboardingLookAtPhoneLoop };
   loopAction->SetRenderInEyeHue( false );
   DelegateIfInControl( loopAction ); // loop forever, waiting for a message
 }
