@@ -56,6 +56,7 @@
 #include "util/logging/logging.h"
 #include "webServerProcess/src/webService.h"
 
+#include <anki/cozmo/shared/cozmoConfig.h>
 #include <chrono>
 #include <fstream>
 #include <iomanip>
@@ -235,6 +236,7 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_SCREEN(FAC, None);
   ADD_SCREEN(CustomText, None);
   ADD_SCREEN(Main, Network);
+  ADD_SCREEN_WITH_TEXT(Toggle30fps, Toggle30fps, {_using30fps() ? "TOGGLE 60 FPS?" : "TOGGLE 30 FPS?"});
   ADD_SCREEN_WITH_TEXT(AutoUpdates, AutoUpdates, {"TOGGLE UPDATING?"});
   ADD_SCREEN_WITH_TEXT(DTTBRandomEyes, DTTBRandomEyes, {"TOGGLE DTTB EYES?"});
   ADD_SCREEN_WITH_TEXT(BootRecovery, BootRecovery, {"RECOVERY MODE?"});
@@ -393,6 +395,7 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   // === Screen 3 ===
   ADD_MENU_ITEM(ConfigurationSubmenu3, "EXIT", Main);
   ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu3, "PREV PAGE", incSlotDown);
+  ADD_MENU_ITEM(ConfigurationSubmenu3, _using30fps() ? "TOGGLE 60 FPS" : "TOGGLE 30 FPS", Toggle30fps);
   ADD_MENU_ITEM(ConfigurationSubmenu3, "TOGGLE UPDATING", AutoUpdates);
   ADD_MENU_ITEM(ConfigurationSubmenu3, "DTTB RANDOM EYES", DTTBRandomEyes);
   DISABLE_TIMEOUT(ConfigurationSubmenu)
@@ -478,6 +481,20 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_MENU_ITEM_WITH_ACTION(SetFrequency, "REGULAR", confirmSetSpeedReg);
   ADD_MENU_ITEM_WITH_ACTION(SetFrequency, "BALANCED", confirmSetSpeedBal);
   ADD_MENU_ITEM_WITH_ACTION(SetFrequency, "PERFORMANCE", confirmSetSpeedPerf);
+
+  // === Enable/disable 30 fps ===
+  FaceInfoScreen::MenuItemAction confirmToggle30fps = [this]() {
+    LOG_INFO("FaceInfoScreenManager.Swaplights.Confirmed", "");
+    if (!_using30fps()) {
+      Util::FileUtils::WriteFile("/data/data/rebuild/using-30-fps", "");
+    } else {
+      Util::FileUtils::DeleteFile("/data/data/rebuild/using-30-fps");
+    }
+    this->Reboot();
+    return ScreenName::Rebooting;
+  };
+  ADD_MENU_ITEM(Toggle30fps, "EXIT", ConfigurationSubmenu);
+  ADD_MENU_ITEM_WITH_ACTION(Toggle30fps, "CONFIRM", confirmToggle30fps);
 
   // === Disable/Enable auto updates ===
   FaceInfoScreen::MenuItemAction confirmAutoUpdates = []() {

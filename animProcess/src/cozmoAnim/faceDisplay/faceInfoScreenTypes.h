@@ -62,6 +62,7 @@ enum class ScreenName : uint8_t {
   AutoUpdates,
   SetFrequency,
   DTTBRandomEyes,
+  Toggle30fps,
   
   Count
 };

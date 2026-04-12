@@ -207,7 +207,7 @@ void BlackJackVisualizer::Init(BehaviorExternalInterface& bei)
   auto& dataAccessorComp = bei.GetComponentWrapper(BEIComponentID::DataAccessor).GetComponent<DataAccessorComponent>();
 
   const float kAnimAuthoredTimeStep_ms = 33.0f; // Original framerate
-  const float timingScaleFactor = (float)ANIM_TIME_STEP_MS / kAnimAuthoredTimeStep_ms;
+  const float timingScaleFactor = (float)_getAnimTimeStepMS() / kAnimAuthoredTimeStep_ms;
 
   // Find the time stamps for animation driven events
   const auto* animContainer = dataAccessorComp.GetCannedAnimationContainer();
@@ -428,7 +428,7 @@ void BlackJackVisualizer::PlayCompositeCardAnimationAndLock(const BehaviorExtern
   bool emptySpriteBoxesAreValid = true;
   bei.GetAnimationComponent().PlayCompositeAnimation(compAnimName,
                                                      *(_compImg.get()),
-                                                     ANIM_TIME_STEP_MS,
+                                                     _getAnimTimeStepMS(),
                                                      outAnimationDuration_ms,
                                                      shouldInterrupt,
                                                      emptySpriteBoxesAreValid,
@@ -484,7 +484,7 @@ void BlackJackVisualizer::SwipeToClearFace(BehaviorExternalInterface& bei, std::
   bool emptySpriteBoxesAreValid = true;
   bei.GetAnimationComponent().PlayCompositeAnimation(kSwipeAnimationName,
                                                      *(_compImg.get()),
-                                                     ANIM_TIME_STEP_MS,
+                                                     _getAnimTimeStepMS(),
                                                      outAnimationDuration_ms,
                                                      shouldInterrupt,
                                                      emptySpriteBoxesAreValid,

@@ -40,7 +40,7 @@ webots::Supervisor animSupervisor;
 int main(int argc, char **argv)
 {
   // Start with a step so that we can attach to the process here for debugging
-  animSupervisor.step(ANIM_TIME_STEP_MS);
+  animSupervisor.step(_getAnimTimeStepMS());
 
   // parse commands
   WebotsCtrlShared::ParsedCommandLine params = WebotsCtrlShared::ParseCommandLine(argc, argv);
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
     //
     // Main Execution loop: step the world forward
     //
-    while (animSupervisor.step(ANIM_TIME_STEP_MS) != -1)
+    while (animSupervisor.step(_getAnimTimeStepMS()) != -1)
     {
       stopWatch.Start();
 
@@ -124,7 +124,7 @@ int main(int argc, char **argv)
       // Record tick performance; this includes a call to PerfMetric.
       // For webots, we 'fake' the sleep time here.  Unlike in Cozmo webots,
       // we don't actually sleep in this loop
-      static const float kTargetDuration_ms = Util::numeric_cast<float>(ANIM_TIME_STEP_MS);
+      static const float kTargetDuration_ms = Util::numeric_cast<float>(_getAnimTimeStepMS());
       const float animFreq_ms  = std::max(time_ms, kTargetDuration_ms);
       const float sleepTime_ms = std::max(0.0f, kTargetDuration_ms - time_ms);
       const float sleepTimeActual_ms = sleepTime_ms;

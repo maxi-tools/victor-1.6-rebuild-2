@@ -279,7 +279,7 @@ void BehaviorProceduralClock::BuildAndDisplayProceduralClock(const int clockOffs
 {
   // Animation streamer can only apply images/sounds on animation keyframes so ensure displayOffset is aligned to a frame
   auto displayOffset_aligned_ms = displayOffset_ms;
-  displayOffset_aligned_ms -= (displayOffset_aligned_ms % ANIM_TIME_STEP_MS);
+  displayOffset_aligned_ms -= (displayOffset_aligned_ms % _getAnimTimeStepMS());
 
   auto& accessorComp = GetBEI().GetComponentWrapper(BEIComponentID::DataAccessor).GetComponent<DataAccessorComponent>();
   auto* spriteCache = accessorComp.GetSpriteCache();
@@ -334,7 +334,7 @@ void BehaviorProceduralClock::BuildAndDisplayProceduralClock(const int clockOffs
 
   if(!_lifetimeParams.hasBaseImageBeenSent){
     GetBEI().GetAnimationComponent().DisplayFaceImage(*currentCompImg, 
-                                                      ANIM_TIME_STEP_MS, 
+                                                      _getAnimTimeStepMS(),
                                                       0, 
                                                       true);
     _lifetimeParams.hasBaseImageBeenSent = true;

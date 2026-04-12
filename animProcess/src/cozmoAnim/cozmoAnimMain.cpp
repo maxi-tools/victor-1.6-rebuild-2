@@ -171,7 +171,7 @@ int main(void)
   auto tickStart      = runStart;
 
   // Set the target time for the end of the first frame
-  auto targetEndFrameTime = runStart + (microseconds)(ANIM_TIME_STEP_US);
+  auto targetEndFrameTime = runStart + (microseconds)(_getAnimTimeStepUS());
 
   // Loop until shutdown or error
   while (!gShutdown) {
@@ -201,7 +201,7 @@ int main(void)
     if (remaining_us < microseconds(-ANIM_OVERTIME_WARNING_THRESH_US))
     {
       LOG_WARNING("CozmoAnimMain.overtime", "Update() (%dms max) is behind by %.3fms",
-                  ANIM_TIME_STEP_MS, (float)(-remaining_us).count() * 0.001f);
+                  _getAnimTimeStepMS(), (float)(-remaining_us).count() * 0.001f);
     }
 #endif
     // We ALWAYS sleep, but if we're overtime, we 'sleep zero' which still
@@ -211,13 +211,13 @@ int main(void)
     std::this_thread::sleep_for(sleepTime_us);
 
     // Set the target end time for the next frame
-    targetEndFrameTime += (microseconds)(ANIM_TIME_STEP_US);
+    targetEndFrameTime += (microseconds)(_getAnimTimeStepUS());
 
     // See if we've fallen very far behind (this happens e.g. after a 5-second blocking
     // load operation); if so, compensate by catching the target frame end time up somewhat.
     // This is so that we don't spend the next SEVERAL frames catching up.
     const auto timeBehind_us = -remaining_us;
-    static const auto kusPerFrame = ((microseconds)(ANIM_TIME_STEP_US)).count();
+    static const auto kusPerFrame = ((microseconds)(_getAnimTimeStepUS())).count();
     static const int kTooFarBehindFramesThreshold = 2;
     static const auto kTooFarBehindThreshold = (microseconds)(kTooFarBehindFramesThreshold * kusPerFrame);
     if (timeBehind_us >= kTooFarBehindThreshold)

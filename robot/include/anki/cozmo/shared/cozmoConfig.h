@@ -10,6 +10,7 @@
 #endif
 
 #include <math.h>
+#include <sys/stat.h>
 #include "anki/cozmo/shared/factory/emrHelper.h"
 
 namespace Anki {
@@ -343,6 +344,38 @@ namespace Vector {
   const u32 ANIM_TIME_STEP_POWERSAVE_MS = 33;
   const u32 ANIM_TIME_STEP_POWERSAVE_US = ANIM_TIME_STEP_POWERSAVE_MS * 1000;
   
+  // Toggle between 30 and 60fps
+  inline u32 _getAnimTimeStepMS() {
+    struct stat buffer;
+    if ((stat("/data/data/rebuild/using-30-fps", &buffer) == 0)) {
+      return ANIM_TIME_STEP_POWERSAVE_MS;
+    } else {
+      return ANIM_TIME_STEP_MS;
+    }
+  }
+
+  inline u32 _getAnimTimeStepUS() {
+    struct stat buffer;
+    if ((stat("/data/data/rebuild/using-30-fps", &buffer) == 0)) {
+      return ANIM_TIME_STEP_POWERSAVE_US;
+    } else {
+      return ANIM_TIME_STEP_US;
+    }
+  }
+
+  inline bool& _using30fps() {
+    static bool initialized = false;
+    static bool value = false;
+    struct stat buffer;
+
+    if (!initialized) {
+      value = (stat("/data/data/rebuild/using-30-fps", &buffer) == 0);
+      initialized = true;
+    }
+
+    return value;
+  }
+
   // Time step for cube tick
   const s32 CUBE_TIME_STEP_MS = 10;
   

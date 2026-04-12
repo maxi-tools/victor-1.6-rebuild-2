@@ -103,7 +103,7 @@ namespace Vector {
 
     bool IsFirstKeyframeTick(const TimeStamp_t timeSinceAnimStart_ms) const
     {
-      return GetTimeSinceTrigger(timeSinceAnimStart_ms) < ANIM_TIME_STEP_MS;
+      return GetTimeSinceTrigger(timeSinceAnimStart_ms) < _getAnimTimeStepMS();
     }
 
   protected:
@@ -273,7 +273,7 @@ namespace Vector {
     virtual Result SetMembersFromFlatBuf(const CozmoAnim::RobotAudio* audioKeyframe, const std::string& animNameDebug = "");
         
     // Lasts one keyframe to send audio event
-    virtual TimeStamp_t GetKeyframeDuration_ms() const override { return ANIM_TIME_STEP_MS; }
+    virtual TimeStamp_t GetKeyframeDuration_ms() const override { return _getAnimTimeStepMS(); }
     
   private:
     std::vector<AudioKeyFrameType::AudioRef> _audioReferences;
@@ -365,7 +365,7 @@ namespace Vector {
     bool NewImageContentAvailable(const TimeStamp_t timeSinceAnimStart_ms) const;
     // These functions retrieve the image handle. 
     // Returns true if the Image field was populated, false otherwise.
-    // Empty frames are expected for animations that have a duration longer than ANIM_TIME_STEP_MS, and hence
+    // Empty frames are expected for animations that have a duration longer than _getAnimTimeStepMS(), and hence
     // this function may return false even though there are frames remaining. To check if the keyframe is done,
     // check the final keyframe timestamp rather than the return value of this function.
     bool GetFaceImageHandle(const TimeStamp_t timeSinceAnimStart_ms,
@@ -405,7 +405,7 @@ namespace Vector {
     bool _compositeImageUpdated = false;
     std::multimap<u32, CompositeImageUpdateSpec> _compositeImageUpdateMap;
     
-    TimeStamp_t  _internalUpdateInterval_ms = ANIM_TIME_STEP_MS;
+    TimeStamp_t  _internalUpdateInterval_ms = _getAnimTimeStepMS();
     TimeStamp_t _keyframeActiveDuration_ms = 0;
     mutable u32 _lastDisplayedFrame = 0;
     
@@ -452,7 +452,7 @@ namespace Vector {
     virtual Result SetMembersFromJson(const Json::Value &jsonRoot, const std::string& animNameDebug = "") override;
     virtual Result SetMembersFromFlatBuf(const CozmoAnim::ProceduralFace* procFaceKeyframe, const std::string& animNameDebug = "");
     
-    virtual TimeStamp_t GetKeyframeDuration_ms() const override { return _keyframeActiveDuration_ms == 0 ? ANIM_TIME_STEP_MS : _keyframeActiveDuration_ms; }
+    virtual TimeStamp_t GetKeyframeDuration_ms() const override { return _keyframeActiveDuration_ms == 0 ? _getAnimTimeStepMS() : _keyframeActiveDuration_ms; }
     
   private:
     TimeStamp_t     _keyframeActiveDuration_ms = 0;
@@ -507,7 +507,7 @@ namespace Vector {
     virtual Result SetMembersFromJson(const Json::Value &jsonRoot, const std::string& animNameDebug = "") override;
     virtual Result SetMembersFromFlatBuf(const CozmoAnim::Event* eventKeyframe, const std::string& animNameDebug = "");
 
-    virtual TimeStamp_t GetKeyframeDuration_ms() const override { return ANIM_TIME_STEP_MS; }
+    virtual TimeStamp_t GetKeyframeDuration_ms() const override { return _getAnimTimeStepMS(); }
     
   private:
 
@@ -629,7 +629,7 @@ namespace Vector {
     virtual Result SetMembersFromJson(const Json::Value &jsonRoot, const std::string& animNameDebug = "") override;
     virtual Result SetMembersFromFlatBuf(const CozmoAnim::RecordHeading* recordHeadingKeyframe, const std::string& animNameDebug = "");
     
-    virtual TimeStamp_t GetKeyframeDuration_ms() const override { return ANIM_TIME_STEP_MS; }
+    virtual TimeStamp_t GetKeyframeDuration_ms() const override { return _getAnimTimeStepMS(); }
     
   private:
     

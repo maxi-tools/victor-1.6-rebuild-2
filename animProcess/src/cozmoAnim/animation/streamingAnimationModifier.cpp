@@ -73,12 +73,12 @@ void StreamingAnimationModifier::ApplyAlterationsAfterUpdate(AnimationStreamer* 
 void StreamingAnimationModifier::HandleMessage(const RobotInterface::AlterStreamingAnimationAtTime& msg)
 {
   auto relativeStreamTime_ms = msg.relativeStreamTime_ms;
-  if((relativeStreamTime_ms % ANIM_TIME_STEP_MS) != 0){
-    relativeStreamTime_ms -= (relativeStreamTime_ms % ANIM_TIME_STEP_MS);
+  if((relativeStreamTime_ms % _getAnimTimeStepMS()) != 0){
+    relativeStreamTime_ms -= (relativeStreamTime_ms % _getAnimTimeStepMS());
     PRINT_NAMED_WARNING("StreamingAnimationModifier.DelayPending.InvalidDelay",
                         "Delay %d is not a multiple of animation time step %d - \
                         it will be updated to %d to align with preceeding frame",
-                        msg.relativeStreamTime_ms, ANIM_TIME_STEP_MS, relativeStreamTime_ms);
+                        msg.relativeStreamTime_ms, _getAnimTimeStepMS(), relativeStreamTime_ms);
   }
 
   // If this message should be applied at the end of the tick increase its time by 1

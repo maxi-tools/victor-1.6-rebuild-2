@@ -111,7 +111,7 @@ void TrackLayerComponent::KeepFaceAlive(const std::map<KeepFaceAliveParameter, f
   // Loop through keep alive activities and perform if timer expired
   bool hasFaceLayer = false;
   for (auto& keepAliveActivity : _keepAliveModifiers) {
-    keepAliveActivity.nextPerformanceTime_ms -= ANIM_TIME_STEP_MS;
+    keepAliveActivity.nextPerformanceTime_ms -= _getAnimTimeStepMS();
     if (keepAliveActivity.nextPerformanceTime_ms <= 0) {
       // Run Activity
       bool success = keepAliveActivity.performFunc(params, timeSinceKeepAliveStart_ms);

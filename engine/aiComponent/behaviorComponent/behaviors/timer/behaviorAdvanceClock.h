@@ -56,7 +56,7 @@ private:
 
   int GetTotalNumberOfUpdates() const {
     const float floatMs = Util::SecToMilliSec(GetTimeDisplayClock_sec());
-    return floatMs/ANIM_TIME_STEP_MS;
+    return floatMs/_getAnimTimeStepMS();
   }
   int GetTotalSecToAdvance() const { return std::abs(_endTime_sec - _startTime_sec);}
   bool TimeGoesUp() const { return _endTime_sec > _startTime_sec; }

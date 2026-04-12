@@ -12,7 +12,7 @@ FACE_DISPLAY_HEIGHT = 96
 
 FLOATING_POINT_COMPARISON_TOLERANCE_FLT = 1e-5
 
-ANIM_TIME_STEP_MS = 33 # ms
+_getAnimTimeStepMS() = 33 # ms
 
 EyeParamCombineMethod_None = 0
 EyeParamCombineMethod_Add = 1
@@ -397,7 +397,7 @@ def GetFaceHelper(track, startTime_ms,  currTime_ms):
         else:
           interpolatedFace = currentKeyFrame.GetInterpolatedFace(nextFrame, currTime_ms - startTime_ms)
 
-          if (nextFrame.IsTimeToPlay(startTime_ms, currTime_ms + ANIM_TIME_STEP_MS)):
+          if (nextFrame.IsTimeToPlay(startTime_ms, currTime_ms + _getAnimTimeStepMS())):
             track.MoveToNextKeyFrame()
           
           return interpolatedFace

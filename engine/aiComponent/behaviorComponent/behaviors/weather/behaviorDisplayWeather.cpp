@@ -388,7 +388,7 @@ void BehaviorDisplayWeather::TransitionToDisplayWeatherResponse()
   const bool emptySpriteBoxesAllowed = false;
   const Result result = GetBEI().GetAnimationComponent().PlayCompositeAnimation(_iConfig->animationName,
                                                                                 *(_iConfig->compImg.get()),
-                                                                                ANIM_TIME_STEP_MS,
+                                                                                _getAnimTimeStepMS(),
                                                                                 outAnimationDuration,
                                                                                 shouldInterrupt,
                                                                                 emptySpriteBoxesAllowed,
