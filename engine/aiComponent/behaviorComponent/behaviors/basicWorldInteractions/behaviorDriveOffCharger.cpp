@@ -159,7 +159,7 @@ bool BehaviorDriveOffCharger::WantsToBeActivatedBehavior() const
   const auto* recentCube = GetBEI().GetBlockWorld().FindMostRecentlyObservedObject(cubeFilter);
   const bool seesRecentCube = (recentCube != nullptr);
   
-  return onChargerPlatform && (seesRecentFace || seesRecentCube);
+  return onChargerPlatform || (seesRecentFace || seesRecentCube);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
