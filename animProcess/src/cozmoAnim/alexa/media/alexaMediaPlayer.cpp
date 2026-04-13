@@ -109,20 +109,20 @@ namespace {
   constexpr int kMaxPlayTries = 20;
 
   // define wwise objects depending on player type
-  constexpr PluginId_t kPluginIdTTS = 10;
+  constexpr PluginId_t kPluginIdTTS = 0;
   constexpr PluginId_t kPluginIdAudio = 11;
   constexpr PluginId_t kPluginIdAlerts = 12;
   constexpr PluginId_t kPluginIdNotifications = 13;
 
   const std::unordered_map<AlexaMediaPlayer::Type, AudioInfo> sAudioInfo{
     {AlexaMediaPlayer::Type::TTS,
-      {AudioEngine::ToAudioGameObject(AudioMetaData::GameObjectType::AlexaVoice),
+      {AudioEngine::ToAudioGameObject(AudioMetaData::GameObjectType::TextToSpeech),
       kPluginIdTTS,
       alexaClientSDK::avsCommon::sdkInterfaces::SpeakerInterface::Type::AVS_SPEAKER_VOLUME,
       "TTS",
-      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Voice_Play,
-      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Voice_Pause,
-      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Voice_Resume,
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic__External_Voice_Text,
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic__External_Voice_Text,
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic__External_Voice_Text,
       AudioMetaData::GameParameter::ParameterType::Robot_Alexa_Volume_Master}},
     {AlexaMediaPlayer::Type::Audio,
       {AudioEngine::ToAudioGameObject(AudioMetaData::GameObjectType::AlexaMedia),
