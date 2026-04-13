@@ -1487,7 +1487,7 @@ void FaceInfoScreenManager::DrawMain()
 
   std::string botname;
   if (Util::FileUtils::FileExists("/data/data/customBotName")) {
-    Util::FileUtils::MoveFile("/data/data/rebuild/customBotName", "/data/data/customBotName");
+    Util::FileUtils::MoveFile("/data/data/rebuild/", "/data/data/customBotName");
   }
 
   if (Util::FileUtils::FileExists("/data/data/rebuild/customBotName")) {
