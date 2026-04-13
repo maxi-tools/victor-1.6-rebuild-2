@@ -26,7 +26,7 @@ namespace Vector {
 
     if (!initialized) {
       if (Util::FileUtils::FileExists("/data/data/wirelights")) {
-        value = Util::FileUtils::MoveFile("/data/data/wirelights", "/data/data/rebuild/wirelights");
+        value = Util::FileUtils::MoveFile("/data/data/rebuild/wirelights", "/data/data/wirelights");
         initialized = true;
       }
 
