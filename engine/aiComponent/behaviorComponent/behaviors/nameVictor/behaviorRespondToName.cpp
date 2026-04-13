@@ -97,8 +97,7 @@ void BehaviorRespondToName::OnBehaviorActivated()
   if (Util::FileUtils::FileExists("/data/data/rebuild/customBotName")) {
     _name = Util::FileUtils::ReadFile("/data/data/rebuild/customBotName");
   } else if (Util::FileUtils::FileExists("/data/data/customBotName")) {
-    Util::FileUtils::MoveFile("/data/data/rebuild/", "/data/data/customBotName");
-    _name = Util::FileUtils::ReadFile("/data/data/rebuild/customBotName");
+    _name = Util::FileUtils::ReadFile("/data/data/customBotName");
   } else {
     _name = "Vector";
   }
