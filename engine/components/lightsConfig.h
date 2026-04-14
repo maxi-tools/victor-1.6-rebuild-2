@@ -14,7 +14,6 @@
 #ifndef ANKI_VECTOR_LIGHTS_CONFIG_H
 #define ANKI_VECTOR_LIGHTS_CONFIG_H
 
-#include "util/fileUtils/fileUtils.h"
 #include <sys/stat.h>
 
 namespace Anki {
@@ -25,12 +24,8 @@ namespace Vector {
     static bool value = false;
 
     if (!initialized) {
-      if (Util::FileUtils::FileExists("/data/data/wirelights")) {
-        value = Util::FileUtils::MoveFile("/data/data/rebuild/wirelights", "/data/data/wirelights");
-        initialized = true;
-      }
-
-      value = Util::FileUtils::FileExists("/data/data/rebuild/wirelights");
+      struct stat buffer;
+      value = (stat("/data/data/wirelights", &buffer) == 0) || (stat("/data/data/rebuild/wirelights", &buffer) == 0);
       initialized = true;
     }
 
@@ -44,12 +39,7 @@ namespace Vector {
 
     if (!initialized) {
       struct stat buffer;
-      value = (stat("/data/data/customBackpackLights/off.json", &buffer) == 0);
-      initialized = true;
-    }
-
-    if (!initialized) {
-      value = Util::FileUtils::FileExists("/data/data/customBackpackLights/off.json") && Util::FileUtils::FileExists("/data/data/customBackpackLights/cubeSpinner/purple/spinner_purple_celebration.json");
+      value = (stat("/data/data/customBackpackLights/off.json", &buffer) == 0) && (stat("/data/data/customBackpackLights/cubeSpinner/purple/spinner_purple_celebration.json", &buffer) == 0);
       initialized = true;
     }
 
