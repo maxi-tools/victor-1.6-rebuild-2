@@ -108,16 +108,58 @@ namespace {
 
   constexpr int kMaxPlayTries = 20;
 
+  // Check if we want to use the old alexa voice or the modern voice
+  bool classicAlexa = Util::FileUtils::FileExists("/data/data/rebuild/old-alexa");
+
   // define wwise objects depending on player type
-  constexpr PluginId_t kPluginIdTTS = 0;
+  constexpr PluginId_t kPluginIdTTS = 10;
   constexpr PluginId_t kPluginIdAudio = 11;
   constexpr PluginId_t kPluginIdAlerts = 12;
   constexpr PluginId_t kPluginIdNotifications = 13;
 
   const std::unordered_map<AlexaMediaPlayer::Type, AudioInfo> sAudioInfo{
     {AlexaMediaPlayer::Type::TTS,
-      {AudioEngine::ToAudioGameObject(AudioMetaData::GameObjectType::TextToSpeech),
+      {AudioEngine::ToAudioGameObject(AudioMetaData::GameObjectType::AlexaVoice),
       kPluginIdTTS,
+      alexaClientSDK::avsCommon::sdkInterfaces::SpeakerInterface::Type::AVS_SPEAKER_VOLUME,
+      "TTS",
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Voice_Play,
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Voice_Pause,
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Voice_Resume,
+      AudioMetaData::GameParameter::ParameterType::Robot_Alexa_Volume_Master}},
+    {AlexaMediaPlayer::Type::Audio,
+      {AudioEngine::ToAudioGameObject(AudioMetaData::GameObjectType::AlexaMedia),
+      kPluginIdAudio,
+      alexaClientSDK::avsCommon::sdkInterfaces::SpeakerInterface::Type::AVS_SPEAKER_VOLUME,
+      "Audio",
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Media_Play,
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Media_Pause,
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Media_Resume,
+      AudioMetaData::GameParameter::ParameterType::Robot_Alexa_Volume_Master}},
+    {AlexaMediaPlayer::Type::Alerts,
+      {AudioEngine::ToAudioGameObject(AudioMetaData::GameObjectType::AlexaAlerts),
+      kPluginIdAlerts,
+      alexaClientSDK::avsCommon::sdkInterfaces::SpeakerInterface::Type::AVS_ALERTS_VOLUME,
+      "Alerts",
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Alerts_Play,
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Alerts_Pause,
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Alerts_Resume,
+      AudioMetaData::GameParameter::ParameterType::Robot_Alexa_Volume_Alerts}},
+    {AlexaMediaPlayer::Type::Notifications,
+      {AudioEngine::ToAudioGameObject(AudioMetaData::GameObjectType::AlexaNotifications),
+      kPluginIdNotifications,
+      alexaClientSDK::avsCommon::sdkInterfaces::SpeakerInterface::Type::AVS_SPEAKER_VOLUME,
+      "Notifications",
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Notifications_Play,
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Notifications_Pause,
+      AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic_Alexa__External_Notifications_Resume,
+      AudioMetaData::GameParameter::ParameterType::Robot_Alexa_Volume_Master}}
+  };
+
+  const std::unordered_map<AlexaMediaPlayer::Type, AudioInfo> sAudioInfo2{
+    {AlexaMediaPlayer::Type::TTS,
+      {AudioEngine::ToAudioGameObject(AudioMetaData::GameObjectType::TextToSpeech),
+      0,
       alexaClientSDK::avsCommon::sdkInterfaces::SpeakerInterface::Type::AVS_SPEAKER_VOLUME,
       "TTS",
       AudioMetaData::GameEvent::GenericEvent::Play__Robot_Vic__External_Voice_Text,
@@ -166,16 +208,16 @@ namespace {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 AlexaMediaPlayer::AlexaMediaPlayer( Type type,
                                     std::shared_ptr<avsCommon::sdkInterfaces::HTTPContentFetcherInterfaceFactoryInterface> contentFetcherFactory )
-  : avsCommon::utils::RequiresShutdown{"AlexaMediaPlayer_" + sAudioInfo.at(type).name}
+  : avsCommon::utils::RequiresShutdown{"AlexaMediaPlayer_" + (classicAlexa ? sAudioInfo2.at(type).name : sAudioInfo.at(type).name)}
   , _type( type )
   , _state(State::Idle)
   , _stateBeforePause(State::Idle)
   , _playableClip( AudioEngine::kInvalidAudioEventId )
   , _mp3Buffer( new Util::RingBuffContiguousRead<uint8_t>{ kAudioBufferSize, kMaxReadSize } )
   , _dataValidity{ DataValidity::Unknown }
-  , _dispatchQueue(Util::Dispatch::Create(("APlayer_" + sAudioInfo.at(type).name).c_str()))
+  , _dispatchQueue(Util::Dispatch::Create( classicAlexa ? ("APlayer_" + sAudioInfo2.at(type).name).c_str() : ("APlayer_" + sAudioInfo.at(type).name).c_str()))
   , _contentFetcherFactory( contentFetcherFactory )
-  , _audioInfo( sAudioInfo.at(_type) )
+  , _audioInfo( classicAlexa ? sAudioInfo2.at(_type) : sAudioInfo.at(_type) )
   , _shuttingDown( false )
   , _playLoopRunning( false )
 {

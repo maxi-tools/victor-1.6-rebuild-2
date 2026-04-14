@@ -26,6 +26,7 @@
 #include "clad/cloud/mic.h"
 #include "clad/types/tofDisplayTypes.h"
 
+#include "util/fileUtils/fileUtils.h"
 #include "util/singleton/dynamicSingleton.h"
 
 #include <future>
@@ -249,6 +250,8 @@ private:
   bool _invalidServConfig = false;
   bool _usesCustServConfig = true;
   bool _usesEscapePod = true;
+
+  bool _classicAlexa = Util::FileUtils::FileExists("/data/data/rebuild/old-alexa");
 
   std::string _sysconVersion = "";
   

@@ -229,30 +229,35 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   const bool hideSpecialDebugScreens = (FACTORY_TEST && Factory::GetEMR()->fields.PLAYPEN_PASSED_FLAG) || !ANKI_DEV_CHEATS;  // TODO: Use this line in master
   //const bool hideSpecialDebugScreens = (FACTORY_TEST && Factory::GetEMR()->fields.PLAYPEN_PASSED_FLAG);                        // Use this line in factory branch
 
-  ADD_SCREEN_WITH_TEXT(Reonboard, Reonboard, {"REONBOARD?"});
-  ADD_SCREEN_WITH_TEXT(SwitchSlot, SwitchSlot, {"SWAP SYS SLOT?"});
   ADD_SCREEN(None, None);
   ADD_SCREEN(Pairing, Pairing);
   ADD_SCREEN(FAC, None);
   ADD_SCREEN(CustomText, None);
   ADD_SCREEN(Main, Network);
-  ADD_SCREEN_WITH_TEXT(Toggle30fps, Toggle30fps, {_using30fps() ? "TOGGLE 60 FPS?" : "TOGGLE 30 FPS?"});
+
+  // Start rebuild custom screens
   ADD_SCREEN_WITH_TEXT(AutoUpdates, AutoUpdates, {"TOGGLE UPDATING?"});
-  ADD_SCREEN_WITH_TEXT(DTTBRandomEyes, DTTBRandomEyes, {"TOGGLE DTTB EYES?"});
-  ADD_SCREEN_WITH_TEXT(BootRecovery, BootRecovery, {"RECOVERY MODE?"});
-  ADD_SCREEN_WITH_TEXT(UserDataSubmenu, UserDataSubmenu, {"DATA OPTIONS"});
   ADD_SCREEN_WITH_TEXT(BackpackLights, BackpackLights, {_wireoslights() ? "USE ANKI LIGHTS?" : "USE WIREOS LIGHTS?"});
+  ADD_SCREEN_WITH_TEXT(BootRecovery, BootRecovery, {"RECOVERY MODE?"});
   ADD_SCREEN_WITH_TEXT(ConfigurationSubmenu, ConfigurationSubmenu, {"CONFIGURATION PAGE 1"});
   ADD_SCREEN_WITH_TEXT(ConfigurationSubmenu2, ConfigurationSubmenu2, {"CONFIGURATION PAGE 2"});
   ADD_SCREEN_WITH_TEXT(ConfigurationSubmenu3, ConfigurationSubmenu3, {"CONFIGURATION PAGE 3"});
+  ADD_SCREEN_WITH_TEXT(ConfigurationSubmenu4, ConfigurationSubmenu4, {"CONFIGURATION PAGE 4"});
+  ADD_SCREEN_WITH_TEXT(DTTBRandomEyes, DTTBRandomEyes, {"TOGGLE DTTB EYES?"});
+  ADD_SCREEN_WITH_TEXT(OldNewAlexa, OldNewAlexa, {_classicAlexa ? "USE MODERN ALEXA?" : "USE BETA ALEXA?"});
+  ADD_SCREEN_WITH_TEXT(Reonboarding, Reonboarding, {"REONBOARDING..."});
+  ADD_SCREEN_WITH_TEXT(Reonboard, Reonboard, {"REONBOARD?"});
+  ADD_SCREEN_WITH_TEXT(SetFrequency, SetFrequency, {"SET SPEED TO?"});
+  ADD_SCREEN_WITH_TEXT(SwitchSlot, SwitchSlot, {"SWAP SYS SLOT?"});
+  ADD_SCREEN_WITH_TEXT(SwitchSlotReboot, SwitchSlotReboot, {"SWITCHING SLOT..."});
+  ADD_SCREEN_WITH_TEXT(Toggle30fps, Toggle30fps, {_using30fps() ? "TOGGLE 60 FPS?" : "TOGGLE 30 FPS?"});
+  ADD_SCREEN_WITH_TEXT(UserDataSubmenu, UserDataSubmenu, {"DATA OPTIONS"});
+  // end rebuild custom screens
   ADD_SCREEN_WITH_TEXT(ClearUserData, Main, {"CLEAR USER DATA?"});
   ADD_SCREEN_WITH_TEXT(ClearUserDataFail, Main, {"CLEAR USER DATA FAILED"});
   ADD_SCREEN_WITH_TEXT(Rebooting, Rebooting, {"REBOOTING..."});
-  ADD_SCREEN_WITH_TEXT(Reonboarding, Reonboarding, {"REONBOARDING..."});
-  ADD_SCREEN_WITH_TEXT(SwitchSlotReboot, SwitchSlotReboot, {"SWITCHING SLOT..."});
   ADD_SCREEN_WITH_TEXT(SelfTest, Main, {"START SELF TEST?"});
   ADD_SCREEN(SelfTestRunning, SelfTestRunning)
-  ADD_SCREEN_WITH_TEXT(SetFrequency, SetFrequency, {"SET SPEED TO?"});
   ADD_SCREEN(Network, SensorInfo);
   ADD_SCREEN(SensorInfo, IMUInfo);
   ADD_SCREEN(IMUInfo, MotorInfo);
@@ -345,15 +350,14 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   SET_ENTER_ACTION(Main, mainEnterFcn);
 
   ADD_MENU_ITEM(Main, "EXIT", None);
-  // #if ENABLE_SELF_TEST
-  ADD_MENU_ITEM(Main, IsXray() ? "CONF" : "CONFIGURATION", ConfigurationSubmenu);
-  // #endif
   ADD_MENU_ITEM(Main, IsXray() ? "DATA" : "DATA OPTIONS", UserDataSubmenu);
+  ADD_MENU_ITEM(Main, IsXray() ? "CONF" : "CONFIGURATION", ConfigurationSubmenu);
 
   // === Configuration Submenu ===
   FaceInfoScreen::MenuItemAction incSlotUp = [] {
       confPageNumber += 1;
       switch(confPageNumber) {
+          case 4:  return ScreenName::ConfigurationSubmenu4;
           case 3:  return ScreenName::ConfigurationSubmenu3;
           case 2:  return ScreenName::ConfigurationSubmenu2;
           default: confPageNumber = 1; return ScreenName::ConfigurationSubmenu;
@@ -365,7 +369,8 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
       switch(confPageNumber) {
           case 1:  return ScreenName::ConfigurationSubmenu;
           case 2:  return ScreenName::ConfigurationSubmenu2;
-          default: confPageNumber = 3; return ScreenName::ConfigurationSubmenu3;
+          case 3:  return ScreenName::ConfigurationSubmenu3;
+          default: confPageNumber = 4; return ScreenName::ConfigurationSubmenu4;
       }
   };
 
@@ -395,9 +400,16 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   // === Screen 3 ===
   ADD_MENU_ITEM(ConfigurationSubmenu3, "EXIT", Main);
   ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu3, "PREV PAGE", incSlotDown);
+  ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu3, "NEXT PAGE", incSlotUp);
   ADD_MENU_ITEM(ConfigurationSubmenu3, _using30fps() ? "TOGGLE 60 FPS" : "TOGGLE 30 FPS", Toggle30fps);
   ADD_MENU_ITEM(ConfigurationSubmenu3, "TOGGLE UPDATING", AutoUpdates);
-  ADD_MENU_ITEM(ConfigurationSubmenu3, "DTTB RANDOM EYES", DTTBRandomEyes);
+  DISABLE_TIMEOUT(ConfigurationSubmenu)
+
+  // === Screen 4 ===
+  ADD_MENU_ITEM(ConfigurationSubmenu4, "EXIT", Main);
+  ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu4, "PREV PAGE", incSlotDown);
+  ADD_MENU_ITEM(ConfigurationSubmenu4, "DTTB RANDOM EYES", DTTBRandomEyes);
+  ADD_MENU_ITEM(ConfigurationSubmenu4, _classicAlexa ? "USE MODERN ALEXA" : "USE BETA ALEXA", OldNewAlexa);
   DISABLE_TIMEOUT(ConfigurationSubmenu)
 
   // === User Data Menu ===
@@ -449,10 +461,10 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   SET_ENTER_ACTION(ServerInformation, serverEnterFcn);
 
   // === Reonboard screen ===
-  FaceInfoScreen::MenuItemAction confirmReonboard = [this]() {
+  FaceInfoScreen::MenuItemAction confirmReonboard = [] {
     LOG_INFO("FaceInfoScreenManager.Reonboard.Confirmed", "");
     (void)system("cd /data/data/com.anki.victor/persistent && rm -f onboarding/onboardingState.json token/token.jwt ../../server_config.json");
-    this->Reboot();
+    (void)system("curl 'http://localhost:8080/api/extra/restartvic' &");
     return ScreenName::Reonboarding;
   };
   ADD_MENU_ITEM(Reonboard, "EXIT", UserDataSubmenu);
@@ -460,19 +472,19 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   DISABLE_TIMEOUT(Reonboard);
 
   // === Change CPU/RAM speed ===
-  FaceInfoScreen::MenuItemAction confirmSetSpeedReg = []() {
+  FaceInfoScreen::MenuItemAction confirmSetSpeedReg = [] {
     LOG_INFO("FaceInfoScreenManager.ChangeFrequency.ConfirmedRegular", "");
     (void)system("curl 'http://localhost:8080/api/mods/FreqChange/set?freq=0'");
     return ScreenName::ConfigurationSubmenu2;
   };
 
-  FaceInfoScreen::MenuItemAction confirmSetSpeedBal = []() {
+  FaceInfoScreen::MenuItemAction confirmSetSpeedBal = [] {
     LOG_INFO("FaceInfoScreenManager.ChangeFrequency.ConfirmedBalanced", "");
     (void)system("curl 'http://localhost:8080/api/mods/FreqChange/set?freq=1'");
     return ScreenName::ConfigurationSubmenu2;
   };
 
-  FaceInfoScreen::MenuItemAction confirmSetSpeedPerf= []() {
+  FaceInfoScreen::MenuItemAction confirmSetSpeedPerf= [] {
     LOG_INFO("FaceInfoScreenManager.ChangeFrequency.ConfirmedPerf", "");
     (void)system("curl 'http://localhost:8080/api/mods/FreqChange/set?freq=2'");
     return ScreenName::ConfigurationSubmenu2;
@@ -483,21 +495,21 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_MENU_ITEM_WITH_ACTION(SetFrequency, "PERFORMANCE", confirmSetSpeedPerf);
 
   // === Enable/disable 30 fps ===
-  FaceInfoScreen::MenuItemAction confirmToggle30fps = [this]() {
+  FaceInfoScreen::MenuItemAction confirmToggle30fps = [] {
     LOG_INFO("FaceInfoScreenManager.Swaplights.Confirmed", "");
     if (!_using30fps()) {
       Util::FileUtils::WriteFile("/data/data/rebuild/using-30-fps", "");
     } else {
       Util::FileUtils::DeleteFile("/data/data/rebuild/using-30-fps");
     }
-    this->Reboot();
+    (void)system("curl 'http://localhost:8080/api/extra/restartvic' &");
     return ScreenName::Rebooting;
   };
   ADD_MENU_ITEM(Toggle30fps, "EXIT", ConfigurationSubmenu);
   ADD_MENU_ITEM_WITH_ACTION(Toggle30fps, "CONFIRM", confirmToggle30fps);
 
   // === Disable/Enable auto updates ===
-  FaceInfoScreen::MenuItemAction confirmAutoUpdates = []() {
+  FaceInfoScreen::MenuItemAction confirmAutoUpdates = [] {
     LOG_INFO("FaceInfoScreenManager.AutoUpdates.Confirmed", "");
     if (checkAutoUpdatesOn()) {
       Util::FileUtils::WriteFile("/data/data/user-do-not-auto-update", "");
@@ -510,14 +522,14 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_MENU_ITEM_WITH_ACTION(AutoUpdates, "CONFIRM", confirmAutoUpdates);
 
   // === Swap backpack lights screen ===
-  FaceInfoScreen::MenuItemAction confirmToggleLights = [this]() {
+  FaceInfoScreen::MenuItemAction confirmToggleLights = [] {
     LOG_INFO("FaceInfoScreenManager.Swaplights.Confirmed", "");
     if (!_wireoslights()) {
       Util::FileUtils::WriteFile("/data/data/rebuild/wirelights", "");
     } else {
       Util::FileUtils::DeleteFile("/data/data/rebuild/wirelights");
     }
-    this->Reboot();
+    (void)system("curl 'http://localhost:8080/api/extra/restartvic' &");
     return ScreenName::Rebooting;
   };
   ADD_MENU_ITEM(BackpackLights, "EXIT", ConfigurationSubmenu);
@@ -544,15 +556,30 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_MENU_ITEM_WITH_ACTION(BootRecovery, "CONFIRM", confirmBootRecovery);
   DISABLE_TIMEOUT(BootRecovery);
 
+  // === Old/New alexa screen ===
+  FaceInfoScreen::MenuItemAction confirmOldNewAlexa = []() {
+    LOG_INFO("FaceInfoScreenManager.OldNewAlexa.Confirmed", "");
+    if (Util::FileUtils::FileDoesNotExist("/data/data/rebuild/old-alexa")) {
+      Util::FileUtils::WriteFile("/data/data/rebuild/old-alexa", "");
+    } else {
+      Util::FileUtils::DeleteFile("/data/data/rebuild/old-alexa");
+    }
+    (void)system("curl 'http://localhost:8080/api/extra/restartvic' &");
+    return ScreenName::Rebooting;
+  };
+  ADD_MENU_ITEM(OldNewAlexa, "EXIT", ConfigurationSubmenu4);
+  ADD_MENU_ITEM_WITH_ACTION(OldNewAlexa, "CONFIRM", confirmOldNewAlexa);
+
   // === DTTB random eye colors screen ===
   FaceInfoScreen::MenuItemAction confirmToggleDTTBEyes = []() {
-    LOG_INFO("FaceInfoScreenManager.Swaplights.Confirmed", "");
+    LOG_INFO("FaceInfoScreenManager.SwapDTTBEyes.Confirmed", "");
     if (Util::FileUtils::FileDoesNotExist("/data/data/rebuild/dttb-eye-randomizer")) {
       Util::FileUtils::WriteFile("/data/data/rebuild/dttb-eye-randomizer", "");
     } else {
       Util::FileUtils::DeleteFile("/data/data/rebuild/dttb-eye-randomizer");
     }
-    return ScreenName::ConfigurationSubmenu3;
+    (void)system("curl 'http://localhost:8080/api/extra/restartvic' &");
+    return ScreenName::Rebooting;
   };
   ADD_MENU_ITEM(DTTBRandomEyes, "EXIT", ConfigurationSubmenu3);
   ADD_MENU_ITEM_WITH_ACTION(DTTBRandomEyes, "CONFIRM", confirmToggleDTTBEyes);
@@ -1525,7 +1552,6 @@ void FaceInfoScreenManager::DrawMain()
                                {serialNo},
                                {osProject},
                                {osVer},
-                               {ssid}, 
                                { {"IP: "}, {ip, (osstate->IsValidIPAddress(ip) ? NamedColors::GREEN : NamedColors::RED)} },
                              };
     DrawTextOnScreen(lines);
