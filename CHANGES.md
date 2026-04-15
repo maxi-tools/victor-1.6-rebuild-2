@@ -27,6 +27,7 @@
 - New onboarding animation
 - More clear pairing screen
 - Less screen tearing on Vector 2.0
+- New image for when Vector can't calibrate his gyro
 
 ## Behavior related changes
 - Unintentional and Intentional performances ([Anki Commit 1](https://github.com/kercre123/victor/commit/d3fa225) [Anki Commit 2](https://github.com/kercre123/victor/commit/2184b33))
@@ -40,6 +41,8 @@
 - Timer now works up to 1 day (WireOS commit)
 - Can now ask Vector the date, date can be asked for by asking the "What is the date?" Voice command if you're connected to the custom server environment.
 - More sensitive cliff detection
+- ReactToHand drives faster and is more forgiving on the angle
+- Classic beta alexa can be toggled in the CCIS configuration menu
 
 ## Cloud changes
 - vic-cloud that works with wirepod and regular servers
