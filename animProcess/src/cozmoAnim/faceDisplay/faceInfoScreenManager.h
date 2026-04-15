@@ -253,6 +253,8 @@ private:
 
   bool _classicAlexa = Util::FileUtils::FileExists("/data/data/rebuild/old-alexa");
 
+  bool _isRestartRequired = false;
+
   std::string _sysconVersion = "";
   
   // Reboot Linux

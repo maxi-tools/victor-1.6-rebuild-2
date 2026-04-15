@@ -253,6 +253,7 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_SCREEN_WITH_TEXT(Toggle30fps, Toggle30fps, {_using30fps() ? "TOGGLE 60 FPS?" : "TOGGLE 30 FPS?"});
   ADD_SCREEN_WITH_TEXT(UserDataSubmenu, UserDataSubmenu, {"DATA OPTIONS"});
   // end rebuild custom screens
+
   ADD_SCREEN_WITH_TEXT(ClearUserData, Main, {"CLEAR USER DATA?"});
   ADD_SCREEN_WITH_TEXT(ClearUserDataFail, Main, {"CLEAR USER DATA FAILED"});
   ADD_SCREEN_WITH_TEXT(Rebooting, Rebooting, {"REBOOTING..."});
@@ -495,17 +496,21 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_MENU_ITEM_WITH_ACTION(SetFrequency, "PERFORMANCE", confirmSetSpeedPerf);
 
   // === Enable/disable 30 fps ===
-  FaceInfoScreen::MenuItemAction confirmToggle30fps = [] {
+  FaceInfoScreen::MenuItemAction confirmToggle30fps = [this] {
     LOG_INFO("FaceInfoScreenManager.Swaplights.Confirmed", "");
     if (!_using30fps()) {
       Util::FileUtils::WriteFile("/data/data/rebuild/using-30-fps", "");
     } else {
       Util::FileUtils::DeleteFile("/data/data/rebuild/using-30-fps");
     }
-    (void)system("curl 'http://localhost:8080/api/extra/restartvic' &");
-    return ScreenName::Rebooting;
+
+    if (!_isRestartRequired) {
+      _isRestartRequired = true;
+    }
+
+    return ScreenName::ConfigurationSubmenu3;
   };
-  ADD_MENU_ITEM(Toggle30fps, "EXIT", ConfigurationSubmenu);
+  ADD_MENU_ITEM(Toggle30fps, "EXIT", ConfigurationSubmenu3);
   ADD_MENU_ITEM_WITH_ACTION(Toggle30fps, "CONFIRM", confirmToggle30fps);
 
   // === Disable/Enable auto updates ===
@@ -516,27 +521,31 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
     } else {
       Util::FileUtils::DeleteFile("/data/data/user-do-not-auto-update");
     }
-    return ScreenName::ConfigurationSubmenu2;
+    return ScreenName::ConfigurationSubmenu3;
   };
   ADD_MENU_ITEM(AutoUpdates, "EXIT", ConfigurationSubmenu3);
   ADD_MENU_ITEM_WITH_ACTION(AutoUpdates, "CONFIRM", confirmAutoUpdates);
 
   // === Swap backpack lights screen ===
-  FaceInfoScreen::MenuItemAction confirmToggleLights = [] {
+  FaceInfoScreen::MenuItemAction confirmToggleLights = [this] {
     LOG_INFO("FaceInfoScreenManager.Swaplights.Confirmed", "");
     if (!_wireoslights()) {
       Util::FileUtils::WriteFile("/data/data/rebuild/wirelights", "");
     } else {
       Util::FileUtils::DeleteFile("/data/data/rebuild/wirelights");
     }
-    (void)system("curl 'http://localhost:8080/api/extra/restartvic' &");
-    return ScreenName::Rebooting;
+
+    if (!_isRestartRequired) {
+      _isRestartRequired = true;
+    }
+
+    return ScreenName::ConfigurationSubmenu;
   };
   ADD_MENU_ITEM(BackpackLights, "EXIT", ConfigurationSubmenu);
   ADD_MENU_ITEM_WITH_ACTION(BackpackLights, "CONFIRM", confirmToggleLights);
 
   // === SwitchSlot screen ===
-  FaceInfoScreen::MenuItemAction confirmSlotSwitch = [this]() {
+  FaceInfoScreen::MenuItemAction confirmSlotSwitch = [this] {
     LOG_INFO("FaceInfoScreenManager.SwitchSlot.Confirmed", "");
     (void)system("/bin/sysswitch");
     this->Reboot();
@@ -547,7 +556,7 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   DISABLE_TIMEOUT(SwitchSlot);
     
   // === Recovery screen ===
-  FaceInfoScreen::MenuItemAction confirmBootRecovery = []() {
+  FaceInfoScreen::MenuItemAction confirmBootRecovery = [] {
     LOG_INFO("FaceInfoScreenManager.Recovery.Confirmed", "");
     (void)system("/usr/sbin/reboot recovery");
     return ScreenName::Rebooting;
@@ -557,31 +566,39 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   DISABLE_TIMEOUT(BootRecovery);
 
   // === Old/New alexa screen ===
-  FaceInfoScreen::MenuItemAction confirmOldNewAlexa = []() {
+  FaceInfoScreen::MenuItemAction confirmOldNewAlexa = [this] {
     LOG_INFO("FaceInfoScreenManager.OldNewAlexa.Confirmed", "");
     if (Util::FileUtils::FileDoesNotExist("/data/data/rebuild/old-alexa")) {
       Util::FileUtils::WriteFile("/data/data/rebuild/old-alexa", "");
     } else {
       Util::FileUtils::DeleteFile("/data/data/rebuild/old-alexa");
     }
-    (void)system("curl 'http://localhost:8080/api/extra/restartvic' &");
-    return ScreenName::Rebooting;
+
+    if (!_isRestartRequired) {
+      _isRestartRequired = true;
+    }
+
+    return ScreenName::ConfigurationSubmenu4;
   };
   ADD_MENU_ITEM(OldNewAlexa, "EXIT", ConfigurationSubmenu4);
   ADD_MENU_ITEM_WITH_ACTION(OldNewAlexa, "CONFIRM", confirmOldNewAlexa);
 
   // === DTTB random eye colors screen ===
-  FaceInfoScreen::MenuItemAction confirmToggleDTTBEyes = []() {
+  FaceInfoScreen::MenuItemAction confirmToggleDTTBEyes = [this] {
     LOG_INFO("FaceInfoScreenManager.SwapDTTBEyes.Confirmed", "");
     if (Util::FileUtils::FileDoesNotExist("/data/data/rebuild/dttb-eye-randomizer")) {
       Util::FileUtils::WriteFile("/data/data/rebuild/dttb-eye-randomizer", "");
     } else {
       Util::FileUtils::DeleteFile("/data/data/rebuild/dttb-eye-randomizer");
     }
-    (void)system("curl 'http://localhost:8080/api/extra/restartvic' &");
-    return ScreenName::Rebooting;
+
+    if (!_isRestartRequired) {
+      _isRestartRequired = true;
+    }
+
+    return ScreenName::ConfigurationSubmenu4;
   };
-  ADD_MENU_ITEM(DTTBRandomEyes, "EXIT", ConfigurationSubmenu3);
+  ADD_MENU_ITEM(DTTBRandomEyes, "EXIT", ConfigurationSubmenu4);
   ADD_MENU_ITEM_WITH_ACTION(DTTBRandomEyes, "CONFIRM", confirmToggleDTTBEyes);
 
   // === Camera screen ===
@@ -1547,23 +1564,28 @@ void FaceInfoScreenManager::DrawMain()
 
   // ESN/serialNo and the HW version are drawn on the same line with serialNo default left aligned and
   // HW version right aligned.
-  if (_knownBot) {
-    ColoredTextLines lines = { { {nameOfBot}, {hwVer, NamedColors::WHITE, false} },
-                               {serialNo},
-                               {osProject},
-                               {osVer},
-                               { {"IP: "}, {ip, (osstate->IsValidIPAddress(ip) ? NamedColors::GREEN : NamedColors::RED)} },
-                             };
-    DrawTextOnScreen(lines);
+  if (_isRestartRequired) {
+    (void)system("curl 'http://localhost:8080/api/extra/restartvic' &");
+    SetScreen(ScreenName::Rebooting);
   } else {
-    ColoredTextLines lines = { { {serialNo},  {hwVer, NamedColors::WHITE, false} },
-                               {osProject},
-                               {osVer},
-                               {ssid}, 
-                               { {"IP: "}, {ip, (osstate->IsValidIPAddress(ip) ? NamedColors::GREEN : NamedColors::RED)} },
-                             };
+    if (_knownBot) {
+      ColoredTextLines lines = { { {nameOfBot}, {hwVer, NamedColors::WHITE, false} },
+                                {serialNo},
+                                {osProject},
+                                {osVer},
+                                { {"IP: "}, {ip, (osstate->IsValidIPAddress(ip) ? NamedColors::GREEN : NamedColors::RED)} },
+                              };
+      DrawTextOnScreen(lines);
+    } else {
+      ColoredTextLines lines = { { {serialNo},  {hwVer, NamedColors::WHITE, false} },
+                                {osProject},
+                                {osVer},
+                                {ssid},
+                                { {"IP: "}, {ip, (osstate->IsValidIPAddress(ip) ? NamedColors::GREEN : NamedColors::RED)} },
+                              };
 
-    DrawTextOnScreen(lines);
+      DrawTextOnScreen(lines);
+    }
   }
 }
 
