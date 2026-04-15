@@ -7,8 +7,7 @@
  *
  **********************************************************************************************************************/
 
-// #include "engine/aiComponent/behaviorComponent/behaviors/appBehaviors/behaviorEyeColor.h"
-#include "behaviorEyeColor.h"
+#include "engine/aiComponent/behaviorComponent/behaviors/eyeColor/behaviorEyeColor.h"
 
 #include "engine/actions/animActions.h"
 #include "engine/actions/compoundActions.h"
