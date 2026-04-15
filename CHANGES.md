@@ -45,8 +45,8 @@
 - Classic beta alexa can be toggled in the CCIS configuration menu
 
 ## Cloud changes
-- vic-cloud that works with wirepod and regular servers
-- vic-gateway merged into cloud
+- vic-cloud that works with wirepod and regular servers from WireOS
+- vic-gateway merged into cloud from WireOS
 - New public server environment (Setup at https://anki2.ca/1.6/)
 
 ## Miscellaneous changes
