@@ -106,13 +106,29 @@ void BackpackLightComponent::UpdateCriticalBackpackLightConfig(bool isCloudStrea
     // off the charger contacts if we are !charging and !disconnected
     // (and still be turned on)
     //
-    // charging | disconnected | show low battery lights?
-    // Y        | Y            | N (faking charging bc disconnected)
-    // Y        | N            | N (actually charging)
-    // N        | Y            | N (happens after charging for too long (>25min))
-    // N        | N            | Y (no charging taking place)
+    // Cases   | charging | disconnected | show low battery lights?
+    // Case 1: | Y        | Y            | N (faking charging bc disconnected)
+    // Case 2: | Y        | N            | N (actually charging)
+    // Case 3: | N        | Y            | N (happens after charging for too long (>25min))
+    // Case 4: | N        | N            | Y (no charging taking place)
+
+    // Emily:
+    // A few educated guesses on the cases above:
+    // Case 1:
+    // Battery disconnected on the charger due to overheating, won't show charging OR low battery lights
+    // Case 2:
+    // Battery is charging normally, nothing to note
+    // Case 3:
+    // Battery is taking too long to charge so Vector stops charging it and assumes it's full
+    // Case 4:
+    // Battery is low off charger, not much else to say
+
     trigger = BackpackAnimationTrigger::LowBattery;
   }
+  // else if( _isBatteryLow && _isOnChargerContacts )
+  // {
+  //   trigger = BackpackAnimationTrigger::Charging;
+  // }
   // If we have been offline for long enough
   else if(_offlineAtTime_ms > 0 &&
           ((TimeStamp_t)curTime_ms - _offlineAtTime_ms > kOfflineTimeBeforeLights_ms))
@@ -135,10 +151,7 @@ void BackpackLightComponent::UpdateCriticalBackpackLightConfig(bool isCloudStrea
     trigger = BackpackAnimationTrigger::AlexaNotification;
   }
   // If we are on the charger and charging
-  else if(_isOnChargerContacts &&
-          _isBatteryCharging &&
-          !_isBatteryFull &&
-          !_isBatteryDisconnected)
+  else if(_isOnChargerContacts && _isBatteryCharging && !_isBatteryFull && !_isBatteryDisconnected)
   {
     trigger = BackpackAnimationTrigger::Charging;
   }
