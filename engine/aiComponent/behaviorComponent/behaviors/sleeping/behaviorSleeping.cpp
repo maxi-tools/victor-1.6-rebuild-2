@@ -19,6 +19,8 @@
 #include "engine/components/visionComponent.h"
 #include "engine/faceWorld.h"
 #include "util/console/consoleInterface.h"
+#include "util/fileUtils/fileUtils.h"
+#include "util/logging/logging.h"
 
 namespace Anki {
 namespace Vector {
@@ -115,6 +117,10 @@ void BehaviorSleeping::TransitionToSleeping()
 
 void BehaviorSleeping::TransitionToBoutOfStirring()
 {
+  if (GetBEI().GetSleepTracker().IsNightTime() && _disableSnoring) {
+    TransitionToSleeping();
+  }
+
   SetDebugStateName("inBout");
 
   _dVars.animIsPlaying = false;

@@ -20,6 +20,8 @@ namespace Vector {
 
 class BehaviorSleeping : public ICozmoBehavior
 {
+public:
+  bool _disableSnoring = Util::FileUtils::FileExists("/data/data/rebuild/dont-snore-at-night");
 protected:
   // Enforce creation through BehaviorFactory
   friend class BehaviorFactory;  

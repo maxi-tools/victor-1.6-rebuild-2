@@ -65,6 +65,7 @@ enum class ScreenName : uint8_t {
   DTTBRandomEyes,
   Toggle30fps,
   OldNewAlexa,
+  Snoring,
   
   Count
 };

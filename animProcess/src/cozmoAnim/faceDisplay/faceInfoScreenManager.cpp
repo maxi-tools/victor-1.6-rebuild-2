@@ -248,6 +248,7 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_SCREEN_WITH_TEXT(Reonboarding, Reonboarding, {"REONBOARDING..."});
   ADD_SCREEN_WITH_TEXT(Reonboard, Reonboard, {"REONBOARD?"});
   ADD_SCREEN_WITH_TEXT(SetFrequency, SetFrequency, {"SET SPEED TO?"});
+  ADD_SCREEN_WITH_TEXT(Snoring, Snoring, {_snoringDisabled ? "ENABLE SNORING?" : "DISABLE SNORING?"});
   ADD_SCREEN_WITH_TEXT(SwitchSlot, SwitchSlot, {"SWAP SYS SLOT?"});
   ADD_SCREEN_WITH_TEXT(SwitchSlotReboot, SwitchSlotReboot, {"SWITCHING SLOT..."});
   ADD_SCREEN_WITH_TEXT(Toggle30fps, Toggle30fps, {_using30fps() ? "TOGGLE 60 FPS?" : "TOGGLE 30 FPS?"});
@@ -392,16 +393,16 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
 
   // === Screen 2 ===
   ADD_MENU_ITEM(ConfigurationSubmenu2, "EXIT", Main);
-  ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu2, "PREV PAGE", incSlotDown);
   ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu2, "NEXT PAGE", incSlotUp);
+  ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu2, "PREV PAGE", incSlotDown);
   ADD_MENU_ITEM(ConfigurationSubmenu2, "ENTER RECOVERY", BootRecovery);
   ADD_MENU_ITEM(ConfigurationSubmenu2, "CHANGE PERF PROFILE", SetFrequency);
   DISABLE_TIMEOUT(ConfigurationSubmenu)
 
   // === Screen 3 ===
   ADD_MENU_ITEM(ConfigurationSubmenu3, "EXIT", Main);
-  ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu3, "PREV PAGE", incSlotDown);
   ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu3, "NEXT PAGE", incSlotUp);
+  ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu3, "PREV PAGE", incSlotDown);
   ADD_MENU_ITEM(ConfigurationSubmenu3, _using30fps() ? "TOGGLE 60 FPS" : "TOGGLE 30 FPS", Toggle30fps);
   ADD_MENU_ITEM(ConfigurationSubmenu3, "TOGGLE UPDATING", AutoUpdates);
   DISABLE_TIMEOUT(ConfigurationSubmenu)
@@ -409,6 +410,7 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   // === Screen 4 ===
   ADD_MENU_ITEM(ConfigurationSubmenu4, "EXIT", Main);
   ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu4, "PREV PAGE", incSlotDown);
+  ADD_MENU_ITEM(ConfigurationSubmenu4, _snoringDisabled ? "ENABLE SNORING" : "DISABLE SNORING", Snoring);
   ADD_MENU_ITEM(ConfigurationSubmenu4, "DTTB RANDOM EYES", DTTBRandomEyes);
   ADD_MENU_ITEM(ConfigurationSubmenu4, _classicAlexa ? "USE MODERN ALEXA" : "USE BETA ALEXA", OldNewAlexa);
   DISABLE_TIMEOUT(ConfigurationSubmenu)
@@ -582,6 +584,24 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   };
   ADD_MENU_ITEM(OldNewAlexa, "EXIT", ConfigurationSubmenu4);
   ADD_MENU_ITEM_WITH_ACTION(OldNewAlexa, "CONFIRM", confirmOldNewAlexa);
+
+  // === Toggle Snoring ===
+  FaceInfoScreen::MenuItemAction confirmToggleSnoring = [this] {
+    LOG_INFO("FaceInfoScreenManager.OldNewAlexa.Confirmed", "");
+    if (Util::FileUtils::FileDoesNotExist("/data/data/rebuild/dont-snore-at-night")) {
+      Util::FileUtils::WriteFile("/data/data/rebuild/dont-snore-at-night", "");
+    } else {
+      Util::FileUtils::DeleteFile("/data/data/rebuild/dont-snore-at-night");
+    }
+
+    if (!_isRestartRequired) {
+      _isRestartRequired = true;
+    }
+
+    return ScreenName::ConfigurationSubmenu4;
+  };
+  ADD_MENU_ITEM(Snoring, "EXIT", ConfigurationSubmenu4);
+  ADD_MENU_ITEM_WITH_ACTION(Snoring, "CONFIRM", confirmToggleSnoring);
 
   // === DTTB random eye colors screen ===
   FaceInfoScreen::MenuItemAction confirmToggleDTTBEyes = [this] {

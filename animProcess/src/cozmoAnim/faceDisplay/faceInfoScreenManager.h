@@ -255,6 +255,8 @@ private:
 
   bool _isRestartRequired = false;
 
+  bool _snoringDisabled = Util::FileUtils::FileExists("/data/data/rebuild/dont-snore-at-night");
+
   std::string _sysconVersion = "";
   
   // Reboot Linux
