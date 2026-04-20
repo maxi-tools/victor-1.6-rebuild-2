@@ -143,7 +143,8 @@
         "speakable_location_string": "speakableLocationString",
         "is_forecast": "isForecast",
         "temperature_unit": "temperatureUnit",
-        "local_datetime": "localDateTime"
+        "local_datetime": "localDateTime",
+        "raw_condition": "rawCondition"
       }
     },
     {
