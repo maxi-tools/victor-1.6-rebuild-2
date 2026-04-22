@@ -2323,6 +2323,7 @@ void FaceInfoScreenManager::DrawScratch()
     _currScreen == GetScreen(ScreenName::ConfigurationSubmenu) ||
     _currScreen == GetScreen(ScreenName::ConfigurationSubmenu2) ||
     _currScreen == GetScreen(ScreenName::ConfigurationSubmenu3) ||
+    _currScreen == GetScreen(ScreenName::ConfigurationSubmenu4) ||
     _currScreen == GetScreen(ScreenName::SetFrequency))
   {
     _currScreen->DrawMenuVertical(*_scratchDrawingImg);
