@@ -1582,6 +1582,8 @@ void FaceInfoScreenManager::DrawMain()
     ip = "NOT CONNECTED";
   }
 
+  confPageNumber = 1;
+
   // ESN/serialNo and the HW version are drawn on the same line with serialNo default left aligned and
   // HW version right aligned.
   if (_isRestartRequired) {
