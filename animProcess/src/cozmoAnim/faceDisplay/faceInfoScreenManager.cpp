@@ -1584,12 +1584,12 @@ void FaceInfoScreenManager::DrawMain()
 
   confPageNumber = 1;
 
-  // ESN/serialNo and the HW version are drawn on the same line with serialNo default left aligned and
-  // HW version right aligned.
   if (_isRestartRequired) {
     (void)system("curl 'http://localhost:8080/api/extra/restartvic' &");
     SetScreen(ScreenName::Rebooting);
   } else {
+    // ESN/serialNo and the HW version are drawn on the same line with serialNo default left aligned and
+    // HW version right aligned.
     if (_knownBot) {
       ColoredTextLines lines = { { {nameOfBot}, {hwVer, NamedColors::WHITE, false} },
                                 {serialNo},
@@ -1656,6 +1656,7 @@ void FaceInfoScreenManager::DrawNetwork()
                             // TODO: re-enable after security team has confirmed showing email is allowed
                             //  { {"EMAIL: "}, {"dummy...@a...com"} },
                              { {"IP: "}, {ip, (osstate->IsValidIPAddress(ip) ? NamedColors::GREEN : NamedColors::RED)} },
+                             {},
                              { {currTime} },
                              { {"NETWORK: "}, _testingNetwork ? ColoredText("") : getStatusString(_networkStatus) }
                            };
