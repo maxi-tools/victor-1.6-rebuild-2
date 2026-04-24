@@ -755,7 +755,7 @@ namespace Anki
                       float adjustedSaturation = color.saturation * brightness;
 
                       if (IsXray()) {
-                        adjustedSaturation = adjustedSaturation + 0.1;
+                        adjustedSaturation = adjustedSaturation + 0.15;
                       }
 
                       if (Util::FileUtils::DirectoryDoesNotExist("/data/data/rebuild")) {
