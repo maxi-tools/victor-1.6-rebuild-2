@@ -15,7 +15,7 @@
 - Good looking Vector 2.0 eyes (Used from WireOS + some tweaks from me)
 - Smoother pre-1.6 eye darts (Last in 1.5, ported to Viccyware and used code from there)
 - Added the previously unused second timer end beep animation
-- Rainbow Eyes! (Can be set by asking Vector `Change eye color to Rainbow Eyes`)
+- Rainbow Eyes! (Ported from WireOS, can be set by asking Vector `Change eye color to Rainbow Eyes`)
 - Rebuild Eyes, can be set by asking Vector `Change eye color to Cross Media Bar` (Changes eye color on the same schedule as the PS3 XMB)!
 - Petting Lights (Code from WireOS but petting colors are mine)
 - Alt power on eye animations
@@ -28,6 +28,9 @@
 - More clear pairing screen
 - Less screen tearing on Vector 2.0
 - New image for when Vector can't calibrate his gyro
+- Triple click back button to mute (Ported from [ClaudOS](https://github.com/claudix29/claud-os-victor))
+- Bunch of old prototype anims have been reimplemented
+- Unused sleep and low battery anim implmemented
 
 ## Behavior related changes
 - Unintentional and Intentional performances ([Anki Commit 1](https://github.com/kercre123/victor/commit/d3fa225) [Anki Commit 2](https://github.com/kercre123/victor/commit/2184b33))
@@ -43,6 +46,7 @@
 - More sensitive cliff detection
 - ReactToHand drives faster and is more forgiving on the angle
 - Classic beta alexa can be toggled in the CCIS configuration menu
+- Weather is more specific
 
 ## Cloud changes
 - vic-cloud that works with wirepod and regular servers from WireOS
@@ -61,4 +65,4 @@
 - Reonboard menu to easily connect Vector to the voice command server
 - Change slot option in CCIS to change Vector's system slot
 - Useful configuration menu in CCIS
-- Gamma correction from WireOS
+- Gamma correction and camera denoiser from WireOS
