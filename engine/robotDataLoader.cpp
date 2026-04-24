@@ -1072,7 +1072,8 @@ void RobotDataLoader::LoadRobotConfigs()
 
   // Eye color config
   {
-    static const std::string jsonFilename = "config/engine/eye_color_config.json";
+    bool customEyeColorConfig = Util::FileUtils::FileExists("/data/data/rebuild/eye_color_config.json");
+    static const std::string jsonFilename = customEyeColorConfig ? "../../../../data/data/rebuild/eye_color_config.json" : "config/engine/eye_color_config.json";
     const bool success = _platform->readAsJson(Util::Data::Scope::Resources, jsonFilename, _eyeColorConfig);
     if (!success)
     {
