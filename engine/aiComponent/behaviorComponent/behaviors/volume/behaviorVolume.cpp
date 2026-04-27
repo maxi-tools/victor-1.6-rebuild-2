@@ -52,7 +52,8 @@ namespace {
                                                             {"maximum", EVolumeLevel::MAX},
                                                             {"max", EVolumeLevel::MAX},
                                                             {"VOLUME_5", EVolumeLevel::MAX}};
-  const std::map<EVolumeLevel, AnimationTrigger> kVolumeLevelAnimMap {{EVolumeLevel::MIN, AnimationTrigger::VolumeLevel1},
+  const std::map<EVolumeLevel, AnimationTrigger> kVolumeLevelAnimMap {{EVolumeLevel::MUTE, AnimationTrigger::VolumeLevelMute},
+                                                                    {EVolumeLevel::MIN, AnimationTrigger::VolumeLevel1},
                                                                     {EVolumeLevel::MEDLOW, AnimationTrigger::VolumeLevel2},
                                                                     {EVolumeLevel::MED, AnimationTrigger::VolumeLevel3},
                                                                     {EVolumeLevel::MEDHIGH, AnimationTrigger::VolumeLevel4},
