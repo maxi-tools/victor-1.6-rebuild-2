@@ -56,7 +56,7 @@ Once Vector is booted up follow these steps to connect him to the server
 8. - Once Vector reboots go to [https://anki2.ca/1.6/](https://anki2.ca/1.6/) to setup with the server, follow the steps on the website.
   
 ## Hey I found a bug, what should I do?
-Make a bug report at [https://github.com/Victor-Rebuild/victor-1.6-rebuild/issues](https://github.com/Victor-Rebuild/victor-1.6-rebuild/issues) and I'll get to it when I get time.
+Make a bug report at [https://github.com/Victor-Rebuild/victor-1.6-rebuild-2/issues](https://github.com/Victor-Rebuild/victor-1.6-rebuild-2/issues) and I'll get to it when I get time.
 
 ## I got a complaint and would like to voice my opinion loudly and not in a civil manner.
-Talk is cheap, send patches. [https://github.com/Victor-Rebuild/victor-1.6-rebuild/pulls](https://github.com/Victor-Rebuild/victor-1.6-rebuild/pulls)
+Talk is cheap, send patches. [https://github.com/Victor-Rebuild/victor-1.6-rebuild-2/pulls](https://github.com/Victor-Rebuild/victor-1.6-rebuild-2/pulls)
