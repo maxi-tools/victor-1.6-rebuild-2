@@ -24,7 +24,7 @@ const char* custom_ppn   = "/data/data/com.anki.victor/persistent/picovoice/cust
 const char* default_ppn  = "/anki/data/assets/cozmo_resources/assets/picovoice/hey_vector.ppn";
 const char* sensitivity_path = "/data/data/com.anki.victor/persistent/picovoice/sensitivity2";
 float default_sensitivity = 0.60f;
-bool emilyLoggingOn = 1;
+bool emilyLoggingOn = 0;
 
 namespace Anki {
 namespace Vector {
