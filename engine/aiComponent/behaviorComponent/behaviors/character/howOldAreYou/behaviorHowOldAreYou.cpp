@@ -226,14 +226,14 @@ BehaviorHowOldAreYou::PresentableAge BehaviorHowOldAreYou::PresentableAgeFromHou
 
   //
   // Use locale component to get localized version of announcement string.
-  // This is basically a four-way switch between "one day", "N days", "one month", and "N months".
+  // This is basically a six-way switch between "one day", "N days", "one month", "N months", "one year", "N years".
   // If we're less than kMonthsThresh_days days, use days, else translate to months.
-  // And if we're less than kYearsThresh_months, use months, otherwise use years. -- Raj-jyot / Switch_modder
+  // And if we're less than kYearsThresh_months, use months, otherwise use years. -- Emily / Switch_modder
   //
   // Note: current implementation (at Design's request) is to return the floor:
   // i.e., round everything down until we get to a whole day: 47 hours -> 1 day, 49 hours -> 2 days
   // 
-  // Note-2: We can't really "return the floor" past one year so the above will be neglected for when the age is over one year  -- Raj-jyot / Switch_modder
+  // Note-2: We can't really "return the floor" past one year so the above will be neglected for when the age is over one year  -- Emily / Switch_modder
   //
   const auto & localeComponent = GetBEI().GetRobotInfo().GetLocaleComponent();
 

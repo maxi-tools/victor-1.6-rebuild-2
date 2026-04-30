@@ -182,8 +182,10 @@ void BehaviorGoHome::InitBehavior()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool BehaviorGoHome::WantsToBeActivatedBehavior() const
 {
-  const bool isOnChargerContacts = GetBEI().GetRobotInfo().IsOnChargerContacts();
-  if (isOnChargerContacts) {
+  // The below bool isn't used anywhere else in this section, may as well just integrate it into this.
+  // const bool isOnChargerContacts = GetBEI().GetRobotInfo().IsOnChargerContacts();
+  // if (isOnChargerContacts) {
+  if (GetBEI().GetRobotInfo().IsOnChargerContacts()) {
     return false;
   }
   

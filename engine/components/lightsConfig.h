@@ -1,14 +1,14 @@
 /**
  * File: lightsConfig.h
  *
- * Author: Raj-jyot
+ * Author: Emily
  *
  * Created: 21/09/2025
  *
  * Description:
  *   Choose backpack lights thing
  *
- * Copyright: Raj-jyot, 2025
+ * Copyright: Emily, 2025
  **/
 
 #ifndef ANKI_VECTOR_LIGHTS_CONFIG_H
