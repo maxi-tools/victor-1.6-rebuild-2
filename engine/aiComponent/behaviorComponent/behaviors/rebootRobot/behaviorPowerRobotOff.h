@@ -1,12 +1,12 @@
 /**
- * File: BehaviorPowerRobotOff.h
+ * File: BehaviorPowerRobotOff.cpp
  *
- * Author: Kevin M. Karol
- * Created: 2018-07-18
+ * Author: Emily Modder
+ * Created: 2026-03-14
  *
- * Description: Behavior which plays power on/off animations in response to the power button being held down
+ * Description: Behavior which powers off or reboots the robot on a vc
  *
- * Copyright: Anki, Inc. 2018
+ * Copyright: Victor-Rebuild, 2026
  *
  **/
 

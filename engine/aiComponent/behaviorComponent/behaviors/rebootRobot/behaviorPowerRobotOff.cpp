@@ -1,12 +1,12 @@
 /**
  * File: BehaviorPowerRobotOff.cpp
  *
- * Author: Kevin M. Karol
- * Created: 2018-07-18
+ * Author: Emily Modder
+ * Created: 2026-03-14
  *
- * Description: Behavior which powers off or reboots the robot
+ * Description: Behavior which powers off or reboots the robot on a vc
  *
- * Copyright: Anki, Inc. 2018
+ * Copyright: Victor-Rebuild, 2026
  *
  **/
 
@@ -125,13 +125,14 @@ void BehaviorPowerRobotOff::OnBehaviorActivated()
     _dVars.shouldStartPowerOffAnimaiton = prevShouldStartPowerOffAnimaiton;
   }
 
+  // Disable logging once both work
   if (intentDataShutdown) {
     int ret = system("/usr/bin/sudo /usr/bin/voff");
-    PRINT_NAMED_INFO("BehaviorPowerRobotOff.OnBehaviorActivated",
+    PRINT_NAMED_WARNING("BehaviorPowerRobotOff.OnBehaviorActivated",
                      "voff returned: %d", ret);
   } else if (intentDataReboot) {
     int ret = system("/usr/bin/sudo /usr/sbin/reboot");
-    PRINT_NAMED_INFO("BehaviorPowerRobotOff.OnBehaviorActivated",
+    PRINT_NAMED_WARNING("BehaviorPowerRobotOff.OnBehaviorActivated",
                      "reboot returned: %d", ret);
   }
 
