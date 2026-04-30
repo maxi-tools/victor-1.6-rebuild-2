@@ -24,6 +24,7 @@ const char* custom_ppn   = "/data/data/com.anki.victor/persistent/picovoice/cust
 const char* default_ppn  = "/anki/data/assets/cozmo_resources/assets/picovoice/hey_vector.ppn";
 const char* sensitivity_path = "/data/data/com.anki.victor/persistent/picovoice/sensitivity2";
 float default_sensitivity = 0.60f;
+bool emilyLoggingOn = 1;
 
 namespace Anki {
 namespace Vector {
@@ -109,7 +110,10 @@ bool SpeechRecognizerPicovoice::Init()
   }
 
   if (stat(custom_ppn, &st) == 0) {
-      ppn_to_use = custom_ppn;
+    ppn_to_use = custom_ppn;
+    if (emilyLoggingOn) LOG_WARNING("EMILYPVTEST", "CUSTOM IN USE, PATH: %s", ppn_to_use);
+  } else {
+    if (emilyLoggingOn) LOG_WARNING("EMILYPVTEST", "CUSTOM NOT IN USE");
   }
 
   float sensitivity = default_sensitivity;
@@ -131,16 +135,19 @@ bool SpeechRecognizerPicovoice::Init()
   pv_status_t status = pv_porcupine_init_softfp(model_path, ppn_to_use, &sensitivity, &_impl->pvObj);
 
   if (status != PV_STATUS_SUCCESS) {
-      if (ppn_to_use == custom_ppn) {
-          LOG_INFO("SpeechRecognizerPicovoice.Init", "loading default pv model");
-          ppn_to_use = default_ppn;
-          status = pv_porcupine_init_softfp(model_path, ppn_to_use, &sensitivity, &_impl->pvObj);
-      }
+    if (ppn_to_use == custom_ppn) {
+      LOG_INFO("SpeechRecognizerPicovoice.Init", "loading default pv model");
+      ppn_to_use = default_ppn;
+      status = pv_porcupine_init_softfp(model_path, ppn_to_use, &sensitivity, &_impl->pvObj);
+      if (emilyLoggingOn) LOG_WARNING("EMILYPVTEST", "CUSTOM FAILED TO LOAD, PATH %s", ppn_to_use);
+    }
+  } else if (status == PV_STATUS_SUCCESS && ppn_to_use == custom_ppn && emilyLoggingOn) {
+    LOG_WARNING("EMILYPVTEST", "CUSTOM MODEL LOADED! PATH %s", ppn_to_use);
   }
 
   if (status != PV_STATUS_SUCCESS) {
-      LOG_ERROR("SpeechRecognizerPicovoice.Init", "error setting up recognizer :(");
-      return false;
+    LOG_ERROR("SpeechRecognizerPicovoice.Init", "error setting up recognizer :(");
+    return false;
   }
 
   LOG_INFO("SpeechRecognizerPicovoice.Init", "Picovoice set up successfully!");
