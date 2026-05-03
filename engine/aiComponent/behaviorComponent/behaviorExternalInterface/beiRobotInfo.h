@@ -193,6 +193,7 @@ private:
   friend class BehaviorSelfTestLookAtCharger;
   friend class BehaviorSelfTestDockWithCharger;
   friend class BehaviorSelfTestPickup;
+  friend class BehaviorPowerRobotOff;
 
   Robot& _robot;
 };

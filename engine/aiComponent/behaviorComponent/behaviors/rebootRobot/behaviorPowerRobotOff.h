@@ -62,6 +62,7 @@ private:
     TimeStamp_t timeLastPowerAnimStopped_ms;
     std::string lastAnimPlayedName;
     bool shouldStartPowerOffAnimaiton;
+    bool isShutdown;
   };
 
   InstanceConfig _iConfig;

@@ -14,6 +14,7 @@
 #include "engine/aiComponent/behaviorComponent/behaviors/rebootRobot/behaviorPowerRobotOff.h"
 
 #include "cannedAnimLib/cannedAnims/cannedAnimationContainer.h"
+#include "clad/robotInterface/messageEngineToRobot.h"
 #include "clad/robotInterface/messageRobotToEngine.h"
 #include "engine/actions/animActions.h"
 #include "engine/aiComponent/behaviorComponent/behaviorExternalInterface/beiRobotInfo.h"
@@ -22,6 +23,7 @@
 #include "engine/aiComponent/beiConditions/conditions/conditionTimePowerButtonPressed.h"
 #include "engine/components/dataAccessorComponent.h"
 #include "engine/externalInterface/externalInterface.h"
+#include "robot.h"
 
 namespace Anki {
 namespace Vector {
@@ -47,6 +49,7 @@ BehaviorPowerRobotOff::DynamicVariables::DynamicVariables()
 : waitingForAnimationCallback(false)
 , timeLastPowerAnimStopped_ms(0)
 , shouldStartPowerOffAnimaiton(false)
+, isShutdown(false)
 {
 }
 
@@ -125,15 +128,10 @@ void BehaviorPowerRobotOff::OnBehaviorActivated()
     _dVars.shouldStartPowerOffAnimaiton = prevShouldStartPowerOffAnimaiton;
   }
 
-  // Disable logging once both work
   if (intentDataShutdown) {
-    int ret = system("/usr/bin/sudo /usr/bin/voff");
-    PRINT_NAMED_WARNING("BehaviorPowerRobotOff.OnBehaviorActivated",
-                     "voff returned: %d", ret);
+    _dVars.isShutdown = true;
   } else if (intentDataReboot) {
-    int ret = system("/usr/bin/sudo /usr/sbin/reboot");
-    PRINT_NAMED_WARNING("BehaviorPowerRobotOff.OnBehaviorActivated",
-                     "reboot returned: %d", ret);
+    _dVars.isShutdown = false;
   }
 
   TransitionToPoweringOff();
@@ -180,9 +178,14 @@ void BehaviorPowerRobotOff::StartAnimation(const std::string& animName, const Ti
 
   auto callback = [this](const AnimationComponent::AnimResult res, u32 streamTimeAnimEnded) {
     _dVars.waitingForAnimationCallback = false;
-    if(res == AnimationComponent::AnimResult::Completed){
+    if (res == AnimationComponent::AnimResult::Completed) {
       _dVars.timeLastPowerAnimStopped_ms = 0;
-    }else{
+      if (_dVars.isShutdown) {
+        GetBEI().GetRobotInfo()._robot.SendRobotMessage<RobotInterface::Shutdown>();
+      } else {
+        (void)system("/usr/bin/sudo /usr/sbin/reboot");
+      }
+    } else {
       _dVars.timeLastPowerAnimStopped_ms = streamTimeAnimEnded;
     }
   };
