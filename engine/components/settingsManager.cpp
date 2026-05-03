@@ -502,6 +502,17 @@ namespace Anki
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    Json::Value SettingsManager::GetRobotSettingAsJson(const external_interface::RobotSetting key) const
+    {
+      const std::string& keyString = RobotSetting_Name(key);
+      if (!_currentSettings.isMember(keyString))
+      {
+        LOG_ERROR("SettingsManager.GetRobotSettingAsJson.InvalidKey", "Invalid key %s", keyString.c_str());
+        return Json::Value();
+      }
+      return _currentSettings[keyString];
+    }
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     bool SettingsManager::DoesSettingUpdateCloudImmediately(const external_interface::RobotSetting key) const
     {
       const std::string &keyString = RobotSetting_Name(key);

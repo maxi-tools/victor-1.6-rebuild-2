@@ -76,6 +76,23 @@ namespace
   }
   CONSOLE_FUNC(DebugSetEyeColor, kConsoleGroup);
   
+  // Custom eye colors
+  CONSOLE_VAR(bool, kCustomEyeColorEnabled,    kConsoleGroup, false);
+  CONSOLE_VAR_RANGED(f32,  kCustomEyeColorHue, kConsoleGroup, 0.0f, 0.f, 1.f);
+  CONSOLE_VAR_RANGED(f32,  kCustomEyeColorSaturation, kConsoleGroup, 0.0f, 0.f, 1.f);
+  void DebugSetCustomEyeColor(ConsoleFunctionContextRef context)
+  {
+    Json::Value customEyeColor;
+    customEyeColor[kCustomEyeColorEnabledKey]    = kCustomEyeColorEnabled;
+    customEyeColor[kCustomEyeColorHueKey]        = kCustomEyeColorHue;
+    customEyeColor[kCustomEyeColorSaturationKey] = kCustomEyeColorSaturation;
+    s_SettingsCommManager->HandleRobotSettingChangeRequest(
+        external_interface::RobotSetting::custom_eye_color,
+        customEyeColor,
+        kUpdateSettingsJdoc);
+  }
+  CONSOLE_FUNC(DebugSetCustomEyeColor, kConsoleGroup);
+
   // NOTE: Need to keep kButtonWakeWords in sync with enum ButtonWakeWord in settings.proto
   constexpr const char* kButtonWakeWords = "BUTTON_WAKEWORD_HEY_VECTOR,BUTTON_WAKEWORD_ALEXA";
   CONSOLE_VAR_ENUM(u8, kButtonWakeWord, kConsoleGroup, 0, kButtonWakeWords);
@@ -364,6 +381,15 @@ void SettingsCommManager::RefreshConsoleVars()
   const auto& eyeColorValue = _settingsManager->GetRobotSettingAsUInt(external_interface::RobotSetting::eye_color);
   kEyeColor = static_cast<u8>(eyeColorValue);
   
+  const Json::Value customEyeColor = _settingsManager->GetRobotSettingAsJson(
+      external_interface::RobotSetting::custom_eye_color);
+  if (!customEyeColor.isNull())
+  {
+    kCustomEyeColorEnabled    = customEyeColor[kCustomEyeColorEnabledKey].asBool();
+    kCustomEyeColorHue        = customEyeColor[kCustomEyeColorHueKey].asFloat();
+    kCustomEyeColorSaturation = customEyeColor[kCustomEyeColorSaturationKey].asFloat();
+  }
+
   const auto& buttonWakeWordValue = _settingsManager->GetRobotSettingAsUInt(external_interface::RobotSetting::button_wakeword);
   kButtonWakeWord = static_cast<u8>(buttonWakeWordValue);
 #endif

@@ -81,6 +81,7 @@ public:
   std::string GetRobotSettingAsString(const external_interface::RobotSetting key) const;
   bool        GetRobotSettingAsBool  (const external_interface::RobotSetting key) const;
   uint32_t    GetRobotSettingAsUInt  (const external_interface::RobotSetting key) const;
+  Json::Value GetRobotSettingAsJson  (const external_interface::RobotSetting key) const;
   
   bool DoesSettingUpdateCloudImmediately(const external_interface::RobotSetting key) const;
 
