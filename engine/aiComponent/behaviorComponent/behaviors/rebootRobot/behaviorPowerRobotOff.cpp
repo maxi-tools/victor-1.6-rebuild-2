@@ -29,7 +29,6 @@ namespace Anki {
 namespace Vector {
 
 namespace{
-const char* kPowerOnAnimName          = "powerOnAnimName";
 const char* kPowerOffAnimName         = "powerOffAnimName";
 const char* const kWaitForAnimMsgKey  = "waitForAnimMsg";
 }
@@ -38,7 +37,6 @@ const char* const kWaitForAnimMsgKey  = "waitForAnimMsg";
 BehaviorPowerRobotOff::InstanceConfig::InstanceConfig(const Json::Value& config)
 {
   const std::string debugName = "BehaviorPowerRobotOff.InstanceConfig.MissingKey. ";
-  powerOnAnimName    = JsonTools::ParseString(config, kPowerOnAnimName, debugName + kPowerOnAnimName);
   powerOffAnimName   = JsonTools::ParseString(config, kPowerOffAnimName, debugName + kPowerOffAnimName);
 
   waitForAnimMsg = config.get( kWaitForAnimMsgKey, false ).asBool();
@@ -98,7 +96,6 @@ void BehaviorPowerRobotOff::GetAllDelegates(std::set<IBehavior*>& delegates) con
 void BehaviorPowerRobotOff::GetBehaviorJsonKeys(std::set<const char*>& expectedKeys) const
 {
   const char* list[] = {
-    kPowerOnAnimName,
     kPowerOffAnimName,
   };
   expectedKeys.insert( std::begin(list), std::end(list) );

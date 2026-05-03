@@ -10,6 +10,5 @@
     { "type": "victor_shutdown" }
   ],
 
-  "powerOnAnimName" : "anim_power_offon_01",
-  "powerOffAnimName" : "anim_power_onoff_01"
+  "powerOffAnimName" : "anim_gotosleep_getin_01"
 }
