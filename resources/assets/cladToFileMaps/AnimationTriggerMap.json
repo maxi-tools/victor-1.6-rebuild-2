@@ -1692,25 +1692,20 @@
     "AnimName": "ag_communication_pickup_cantdothat"
   },
   {
-    "CladEvent": "Feedback_GoodRobot",
-    "AnimName": "ag_feedback_goodrobot"
+    "CladEvent": "Feedback_Apology",
+    "AnimName": "ag_feedback_apology"
   },
   {
     "CladEvent": "Feedback_BadRobot",
     "AnimName": "ag_feedback_badrobot"
   },
   {
-    "CladEvent": "Feedback_ShutUp",
-    "AnimName": "ag_feedback_shutup"
-  },
-  {
     "CladEvent": "Feedback_BeQuiet",
     "AnimName": "ag_feedback_bequiet"
   },
-
   {
-    "CladEvent": "Feedback_Apology",
-    "AnimName": "ag_feedback_apology"
+    "CladEvent": "Feedback_GoodRobot",
+    "AnimName": "ag_feedback_goodrobot"
   },
   {
     "CladEvent": "Feedback_ILoveYou",
@@ -1720,7 +1715,14 @@
     "CladEvent": "Feedback_MeanWords",
     "AnimName": "ag_feedback_meanwords"
   },
-
+  {
+    "CladEvent": "Feedback_ThankYou",
+    "AnimName": "ag_feedback_thankyou"
+  },
+  {
+    "CladEvent": "Feedback_ShutUp",
+    "AnimName": "ag_feedback_shutup"
+  },
   {
     "CladEvent": "ReactToGoodBye",
     "AnimName": "ag_greeting_goodbye"

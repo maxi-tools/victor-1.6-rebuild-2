@@ -17,6 +17,14 @@
         "emotion_event": "RespondToShortVoiceCommand",
         "active_feature": "MovementForward"
       }
+    },
+    {
+      "cloud_intent": "intent_thank_you",
+      "response": {
+        "anim_group": "ag_feedback_thank_you",
+        "emotion_event": "RespondToShortVoiceCommand",
+        "active_feature": "ReactToHello"
+      }
     }
   ],
 
