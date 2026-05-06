@@ -732,6 +732,9 @@ namespace Anki
 
           return true;
         }
+
+        // Emily - Rebuild Eyes :D
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         else if (eyeColorName == rebuildEyesStr)
         {
           LOG_INFO("SettingsManager.ApplySettingEyeColor.Apply", "Starting Rebuild Eyes thread");
@@ -774,7 +777,7 @@ namespace Anki
                         int month = timeinfo->tm_mon + 1;  // 1-12
                         int day = timeinfo->tm_mday;       // 1-31
                         int hour = timeinfo->tm_hour;      // 0-23
-                        int minute = timeinfo->tm_min;
+                        int minute = timeinfo->tm_min;     // 0-59
 
                         // Get XMB color for current date/time
                         color = GetInterpolatedRebuildXMBColor(month, day, hour, minute);
@@ -793,7 +796,10 @@ namespace Anki
                           nextFifthHour = hour + 5;
                         }
 
-                        if (nextFifthHour == hour && (std::stof(Util::FileUtils::ReadFile("/data/data/rebuild/rebuildEyesHue")) != color.hue) && (std::stof(Util::FileUtils::ReadFile("/data/data/rebuild/rebuildEyesSaturation")) != adjustedSaturation)) {
+                        if (nextFifthHour == hour &&
+                          (std::stof(Util::FileUtils::ReadFile("/data/data/rebuild/rebuildEyesHue")) != color.hue) &&
+                          (std::stof(Util::FileUtils::ReadFile("/data/data/rebuild/rebuildEyesSaturation")) != adjustedSaturation))
+                        {
                           LOG_WARNING("SettingsManager.RebuildEyes.HourlySave", "Saving values");
                           nextFifthHour = hour + 5;
                           std::vector<std::string> command;
@@ -808,9 +814,12 @@ namespace Anki
                             LOG_WARNING("SettingsManager.RebuildEyes.5HourlySave", "Failed to save values");
                           }
                         }
-                      }
-
-                      if (gotTime != true && Util::FileUtils::FileExists("/data/data/rebuild/rebuildEyesSaturation") && Util::FileUtils::FileExists("/data/data/rebuild/rebuildEyesHue")) {
+                      } else if (
+                        gotTime != true &&
+                        Util::FileUtils::FileExists("/data/data/rebuild/rebuildEyesSaturation") &&
+                        Util::FileUtils::FileExists("/data/data/rebuild/rebuildEyesHue")
+                        )
+                      {
                         adjustedSaturation = std::stof(Util::FileUtils::ReadFile("/data/data/rebuild/rebuildEyesSaturation"));
                         color.hue = std::stof(Util::FileUtils::ReadFile("/data/data/rebuild/rebuildEyesHue"));
                         LOG_WARNING("SettingsManager.RebuildEyes.Delay", "Doing Delay");
