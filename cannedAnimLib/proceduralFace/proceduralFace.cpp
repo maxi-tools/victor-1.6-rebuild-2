@@ -23,8 +23,8 @@
 namespace Anki {
 namespace Vector {
 
-const int ProceduralFace::WIDTH = FACE_DISPLAY_WIDTH;
-const int ProceduralFace::HEIGHT = FACE_DISPLAY_HEIGHT;
+const int ProceduralFace::WIDTH = static_cast<ProceduralFace::Value>(FACE_DISPLAY_WIDTH);
+const int ProceduralFace::HEIGHT = static_cast<ProceduralFace::Value>(FACE_DISPLAY_HEIGHT);
 const int ProceduralFace::NominalEyeHeight = IsXray() ? 50 : 57;
 const int ProceduralFace::NominalEyeWidth = IsXray() ? 38 : 43;
   
@@ -33,8 +33,8 @@ ProceduralFace* ProceduralFace::_blankFaceData = nullptr;
 ProceduralFace::Value ProceduralFace::_hue = DefaultHue;
 
 ProceduralFace::Value ProceduralFace::_saturation = DefaultSaturation;
-Vision::Image ProceduralFace::_hueImage = Vision::Image(FACE_DISPLAY_HEIGHT, FACE_DISPLAY_WIDTH, static_cast<u8>(_hue * std::numeric_limits<u8>::max()));
-Vision::Image ProceduralFace::_satImage = Vision::Image(FACE_DISPLAY_HEIGHT, FACE_DISPLAY_WIDTH, static_cast<u8>(_saturation * std::numeric_limits<u8>::max()));
+Vision::Image ProceduralFace::_hueImage = Vision::Image(ProceduralFace::HEIGHT, ProceduralFace::WIDTH, static_cast<u8>(_hue * std::numeric_limits<u8>::max()));
+Vision::Image ProceduralFace::_satImage = Vision::Image(ProceduralFace::HEIGHT, ProceduralFace::WIDTH, static_cast<u8>(_saturation * std::numeric_limits<u8>::max()));
 
 #define CONSOLE_GROUP "Face.ParameterizedFace"
 
@@ -62,7 +62,7 @@ void ProceduralFace::SaturationConsoleFunction(ConsoleFunctionContextRef context
 namespace {
 # define CONSOLE_GROUP "Face.ParameterizedFace"
   
-  CONSOLE_VAR_RANGED(s32, kProcFace_NominalEyeSpacing, CONSOLE_GROUP, IsXray() ? 83 : 92, -FACE_DISPLAY_WIDTH, FACE_DISPLAY_WIDTH);  // V1: 64;
+  CONSOLE_VAR_RANGED(s32, kProcFace_NominalEyeSpacing, CONSOLE_GROUP, IsXray() ? 83 : 92, -ProceduralFace::WIDTH, ProceduralFace::WIDTH);  // V1: 64;
   
 # undef CONSOLE_GROUP
   
@@ -96,7 +96,7 @@ namespace {
   static const Util::FullEnumToValueArrayChecker::FullEnumToValueArray<ProceduralFace::Parameter, EyeParamInfo,
   ProceduralFace::Parameter::NumParameters> kEyeParamInfoLUT {
     {ProceduralFace::Parameter::EyeCenterX,        { false, false,  0.f,  0.f, EyeParamCombineMethod::Add,      {-static_cast<ProceduralFace::Value>(FACE_DISPLAY_WIDTH)/2, static_cast<ProceduralFace::Value>(FACE_DISPLAY_WIDTH)/2 }    }     },
-    {ProceduralFace::Parameter::EyeCenterY,        { false, false,  0.f,  0.f, EyeParamCombineMethod::Add,      {-static_cast<ProceduralFace::Value>(FACE_DISPLAY_HEIGHT)/2,static_cast<ProceduralFace::Value>(FACE_DISPLAY_HEIGHT)/2}    }     },
+    {ProceduralFace::Parameter::EyeCenterY,        { false, false,  0.f,  0.f, EyeParamCombineMethod::Add,      {-ProceduralFace::HEIGHT/2.f,ProceduralFace::HEIGHT/2.f}    }     },
     {ProceduralFace::Parameter::EyeScaleX,         { false, false,  1.f,  0.f, EyeParamCombineMethod::Multiply, {0.f, 10.f}    }     },
     {ProceduralFace::Parameter::EyeScaleY,         { false, false,  1.f,  0.f, EyeParamCombineMethod::Multiply, {0.f, 10.f}    }     },
     {ProceduralFace::Parameter::EyeAngle,          { true,  false,  0.f,  0.f, EyeParamCombineMethod::Add,      {-360, 360}    }     },
