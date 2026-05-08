@@ -30,6 +30,7 @@
 #include "engine/moodSystem/moodManager.h"
 
 #include "coretech/common/engine/utils/timer.h"
+#include "util/fileUtils/fileUtils.h"
 
 
 namespace Anki {
@@ -158,8 +159,14 @@ bool BehaviorDriveOffCharger::WantsToBeActivatedBehavior() const
   cubeFilter.AddFilterFcn(&BlockWorldFilter::IsLightCubeFilter);
   const auto* recentCube = GetBEI().GetBlockWorld().FindMostRecentlyObservedObject(cubeFilter);
   const bool seesRecentCube = (recentCube != nullptr);
+
+  bool leavecharger = true;
+
+  if (Util::FileUtils::FileExists("/data/data/rebuild/stayfuckingputanddontleaveyourdamncharger")) {
+    leavecharger = false;
+  }
   
-  return onChargerPlatform || (seesRecentFace || seesRecentCube);
+  return leavecharger && (onChargerPlatform || (seesRecentFace || seesRecentCube));
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

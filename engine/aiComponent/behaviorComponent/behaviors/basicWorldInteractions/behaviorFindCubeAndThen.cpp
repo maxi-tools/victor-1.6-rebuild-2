@@ -26,6 +26,7 @@
 #include "engine/components/sensors/proxSensorComponent.h"
 
 #include "coretech/common/engine/utils/timer.h"
+#include "util/logging/logging.h"
 
 #define LOG_CHANNEL "Behaviors"
 
@@ -202,6 +203,8 @@ void BehaviorFindCubeAndThen::TransitionToFollowUpBehavior()
   if(nullptr != _iConfig.followUpBehavior && _iConfig.followUpBehavior->WantsToBeActivated()){
     // Let the behavior end when the followup does
     DelegateIfInControl(_iConfig.followUpBehavior.get());
+  } else {
+    LOG_WARNING("EMILY", "STUPID");
   }
   // If there is no followUp behavior, end now
 }
