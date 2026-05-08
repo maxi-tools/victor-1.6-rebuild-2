@@ -166,10 +166,9 @@ bool BehaviorEyeColorVoiceCommand::SetEyeColor(external_interface::EyeColor desi
         "SettingsManager reported no change in eye color setting.");
     // play the eye color change animation anyway
     // (usually it's triggered in the eyeColor reaction behavior, but in this case it won't be)
+    // Disregard the above, don't play the eye color change, play the "can't do that" anim
     CompoundActionSequential* animationSequence = new CompoundActionSequential();
-    animationSequence->AddAction( new TriggerLiftSafeAnimationAction( AnimationTrigger::EyeColorGetIn ), true );
-    animationSequence->AddAction( new TriggerLiftSafeAnimationAction( AnimationTrigger::EyeColorSwitch ), true );
-    animationSequence->AddAction( new TriggerLiftSafeAnimationAction( AnimationTrigger::EyeColorGetOut ), true );
+    animationSequence->AddAction( new TriggerLiftSafeAnimationAction( AnimationTrigger::ReactToUnclaimedIntent ), true );
 
     DelegateIfInControl( animationSequence );
   }
