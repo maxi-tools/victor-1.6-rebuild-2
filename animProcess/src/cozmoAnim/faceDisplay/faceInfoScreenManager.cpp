@@ -56,7 +56,6 @@
 #include "util/logging/logging.h"
 #include "webServerProcess/src/webService.h"
 
-#include <anki/cozmo/shared/cozmoConfig.h>
 #include <chrono>
 #include <fstream>
 #include <iomanip>

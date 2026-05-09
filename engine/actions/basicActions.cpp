@@ -44,6 +44,8 @@
 
 #define LOG_CHANNEL "Actions"
 
+u32 AnimTimeStepMS = Anki::Vector::_getAnimTimeStepMS();
+
 namespace Anki {
   
   namespace Vector {
@@ -304,7 +306,7 @@ namespace Anki {
 
           const f32 x_mm = std::tan(angleDiff_rad) * HEAD_CAM_POSITION[0];
           const f32 xPixShift = x_mm * (static_cast<f32>(GetRobot().GetDisplayWidthInPixels()) / (4*SCREEN_SIZE[0]));
-          GetRobot().GetAnimationComponent().AddOrUpdateEyeShift(_kEyeShiftLayerName, xPixShift, 0, 4*_getAnimTimeStepMS());
+          GetRobot().GetAnimationComponent().AddOrUpdateEyeShift(_kEyeShiftLayerName, xPixShift, 0, 4*AnimTimeStepMS);
         }
       }
 
@@ -403,7 +405,7 @@ namespace Anki {
                     _currentAngle.getDegrees(),
                     _currentTargetAngle.getDegrees(),
                     RAD_TO_DEG(_angularDistTraversed_rad));
-          GetRobot().GetAnimationComponent().RemoveEyeShift(_kEyeShiftLayerName, 3*_getAnimTimeStepMS());
+          GetRobot().GetAnimationComponent().RemoveEyeShift(_kEyeShiftLayerName, 3*AnimTimeStepMS);
         }
       }
 
@@ -1026,7 +1028,7 @@ namespace Anki {
       if(HasRobot()){
         // Make sure eye shift gets removed, by this action, or by the MoveComponent if "hold" is enabled
         if(_holdEyes) {
-          GetRobot().GetMoveComponent().RemoveEyeShiftWhenHeadMoves(_kEyeShiftLayerName, 3*_getAnimTimeStepMS());
+          GetRobot().GetMoveComponent().RemoveEyeShiftWhenHeadMoves(_kEyeShiftLayerName, 3*AnimTimeStepMS);
         } else {
           GetRobot().GetAnimationComponent().RemoveEyeShift(_kEyeShiftLayerName);
         }
@@ -1066,7 +1068,7 @@ namespace Anki {
            Radians angleDiff =  GetRobot().GetComponent<FullRobotPose>().GetHeadAngle() - _headAngle;
            const f32 y_mm = std::tan(angleDiff.ToFloat()) * HEAD_CAM_POSITION[0];
            const f32 yPixShift = y_mm * (static_cast<f32>(GetRobot().GetDisplayHeightInPixels()/4) / SCREEN_SIZE[1]);
-          GetRobot().GetAnimationComponent().AddOrUpdateEyeShift(_kEyeShiftLayerName, 0, yPixShift, 4*_getAnimTimeStepMS());
+          GetRobot().GetAnimationComponent().AddOrUpdateEyeShift(_kEyeShiftLayerName, 0, yPixShift, 4*AnimTimeStepMS);
           
           if(!_holdEyes) {
             // Store the half the angle differene so we know when to remove eye shift
@@ -1124,7 +1126,7 @@ namespace Anki {
                     _headAngle.getDegrees(),
                     _halfAngle.getDegrees());
           
-          GetRobot().GetAnimationComponent().RemoveEyeShift(_kEyeShiftLayerName, 3*_getAnimTimeStepMS());
+          GetRobot().GetAnimationComponent().RemoveEyeShift(_kEyeShiftLayerName, 3*AnimTimeStepMS);
         }
       }
       

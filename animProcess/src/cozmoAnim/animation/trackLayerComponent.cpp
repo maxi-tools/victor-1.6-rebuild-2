@@ -31,6 +31,8 @@ const std::string kEyeBlinkLayerName  = "KeepAliveEyeBlink";
 const std::string kEyeDartLayerName   = "KeepAliveEyeDart";
 const std::string kEyeNoiseLayerName  = "KeepAliveEyeNoise";
   
+u32 AnimTimeStepMS = _getAnimTimeStepMS();
+
 // TODO: Restore audio glitch
 //CONSOLE_VAR(bool, kGenerateGlitchAudio, "ProceduralAnims", false);
 bool kGenerateGlitchAudio = false;
@@ -111,7 +113,7 @@ void TrackLayerComponent::KeepFaceAlive(const std::map<KeepFaceAliveParameter, f
   // Loop through keep alive activities and perform if timer expired
   bool hasFaceLayer = false;
   for (auto& keepAliveActivity : _keepAliveModifiers) {
-    keepAliveActivity.nextPerformanceTime_ms -= _getAnimTimeStepMS();
+    keepAliveActivity.nextPerformanceTime_ms -= AnimTimeStepMS;
     if (keepAliveActivity.nextPerformanceTime_ms <= 0) {
       // Run Activity
       bool success = keepAliveActivity.performFunc(params, timeSinceKeepAliveStart_ms);

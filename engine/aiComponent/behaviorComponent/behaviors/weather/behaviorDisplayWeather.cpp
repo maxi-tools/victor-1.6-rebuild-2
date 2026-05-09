@@ -13,8 +13,6 @@
 
 #include "engine/aiComponent/behaviorComponent/behaviors/weather/behaviorDisplayWeather.h"
 
-
-#include "anki/cozmo/shared/cozmoConfig.h"
 #include "clad/audio/audioSwitchTypes.h"
 #include "components/textToSpeech/textToSpeechCoordinator.h"
 #include "engine/actions/animActions.h"
@@ -388,7 +386,7 @@ void BehaviorDisplayWeather::TransitionToDisplayWeatherResponse()
   const bool emptySpriteBoxesAllowed = false;
   const Result result = GetBEI().GetAnimationComponent().PlayCompositeAnimation(_iConfig->animationName,
                                                                                 *(_iConfig->compImg.get()),
-                                                                                _getAnimTimeStepMS(),
+                                                                                AnimTimeStepMS,
                                                                                 outAnimationDuration,
                                                                                 shouldInterrupt,
                                                                                 emptySpriteBoxesAllowed,
