@@ -1264,7 +1264,6 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
   }
 
 #if ANKI_DEV_CHEATS
-
   if( kFakeButtonPressType == 1 ) { // single press
     singlePressDetected = true;
     kFakeButtonPressType = 0;
