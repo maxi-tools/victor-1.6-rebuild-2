@@ -34,10 +34,7 @@
 #include "opencv2/imgproc.hpp"
 #include "opencv2/highgui.hpp"
 
-#include "anki/cozmo/shared/factory/emrHelper.h"
-
 #include "osState/osState.h"
-#include <anki/cozmo/shared/factory/emrHelper_vicos.h>
 
 namespace Anki {
 namespace Vector {

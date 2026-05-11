@@ -11,7 +11,7 @@
  **/
 
 
-#include "engine/aiComponent/behaviorComponent/behaviors/timer/behaviorDisplayWallDate.h"
+#include "engine/aiComponent/behaviorComponent/behaviors/date/behaviorDisplayWallDate.h"
 
 #include "engine/aiComponent/timerUtility.h"
 #include "engine/components/settingsManager.h"

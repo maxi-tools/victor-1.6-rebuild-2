@@ -11,12 +11,12 @@
 **/
 
 
-#include "engine/aiComponent/behaviorComponent/behaviors/timer/behaviorWallDateCoordinator.h"
+#include "engine/aiComponent/behaviorComponent/behaviors/date/behaviorWallDateCoordinator.h"
 
 #include "clad/audio/audioSwitchTypes.h"
 #include "components/textToSpeech/textToSpeechCoordinator.h"
 #include "engine/aiComponent/behaviorComponent/behaviorContainer.h"
-#include "engine/aiComponent/behaviorComponent/behaviors/timer/behaviorDisplayWallDate.h"
+#include "engine/aiComponent/behaviorComponent/behaviors/date/behaviorDisplayWallDate.h"
 #include "engine/aiComponent/behaviorComponent/behaviorExternalInterface/beiRobotInfo.h"
 #include "engine/actions/animActions.h"
 #include "engine/components/localeComponent.h"

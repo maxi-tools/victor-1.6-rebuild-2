@@ -42,7 +42,6 @@
 #include "clad/robotInterface/messageEngineToRobot_sendAnimToRobot_helper.h"
 
 #include "anki/cozmo/shared/cozmoConfig.h"
-#include "anki/cozmo/shared/factory/emrHelper.h"
 #include "anki/cozmo/shared/factory/faultCodes.h"
 
 #include "osState/osState.h"

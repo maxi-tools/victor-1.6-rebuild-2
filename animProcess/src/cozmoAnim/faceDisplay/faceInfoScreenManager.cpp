@@ -50,7 +50,6 @@
 #include "osState/wallTime.h"
 #include "opencv2/highgui.hpp"
 
-#include "anki/cozmo/shared/factory/emrHelper.h"
 #include "anki/cozmo/shared/factory/faultCodes.h"
 
 #include "util/logging/logging.h"
