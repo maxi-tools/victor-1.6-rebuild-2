@@ -261,8 +261,6 @@ private:
 
   std::string _sysconVersion = "";
   
-  bool _isSpeakerMuted = false; // Amy (hamsteronpotato) && // Emily (Switch_modder)
-
   // Reboot Linux
   void Reboot();
 
