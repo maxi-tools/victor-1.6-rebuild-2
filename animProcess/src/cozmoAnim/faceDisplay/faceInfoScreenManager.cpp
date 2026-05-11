@@ -1210,22 +1210,18 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
 
   if (buttonPressedEvent) {
     if (mightBeDoublePress) {
-        lastPressTime_ms = curTime_ms;
-        doublePressPending = true;
-        singlePressPending = false;
+      lastPressTime_ms = 0;
+      doublePressPending = true;
     } else {
-        lastPressTime_ms = curTime_ms;
+      lastPressTime_ms = curTime_ms;
     }
-} else if (buttonReleasedEvent) {
-
-    if (doublePressPending) {
-        doublePressPending = false;
-        doublePressDetected = true;
-        lastPressTime_ms = 0;
-   }  else if (lastPressTime_ms > 0) {
-        singlePressPending = false;
-        singlePressDetected = true;
-        lastPressTime_ms = 0;
+    singlePressPending = false;
+  } else if (buttonReleasedEvent) {
+    if (lastPressTime_ms > 0) {
+      singlePressPending = true;
+    } else if (doublePressPending) {
+      doublePressPending = false;
+      doublePressDetected = true;
     }
     shutdownSent = false;
   } else if (singlePressPending && !mightBeDoublePress) {
