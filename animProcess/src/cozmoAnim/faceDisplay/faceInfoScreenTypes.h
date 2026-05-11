@@ -51,7 +51,6 @@ enum class ScreenName : uint8_t {
   AlexaPairingExpired, // code expires (has timeout)
   AlexaPairingFailed,  // server error (has timeout)
   ToggleMute, // Quick animation to show change in microphone mute state
-  ToggleSpeakerMute, // Emily (Switch_modder), Anim when muting and unmuting the speaker
   ToF,
   UserDataSubmenu,
   ConfigurationSubmenu, // Let's you change configurations and has some other useful options

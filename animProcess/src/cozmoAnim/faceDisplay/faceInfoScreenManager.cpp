@@ -269,7 +269,6 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_SCREEN(AlexaPairingFailed, AlexaPairingFailed);
   ADD_SCREEN(AlexaPairingExpired, AlexaPairingExpired);
   ADD_SCREEN(ToggleMute, ToggleMute);
-  ADD_SCREEN(ToggleSpeakerMute, ToggleSpeakerMute); // Emily (Switch_modder)
   ADD_SCREEN(AlexaNotification, AlexaNotification);
   
   if (hideSpecialDebugScreens) {
@@ -671,14 +670,6 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   // TODO (VIC-11606): don't use timeout and instead wait for mute anim to end
   SET_TIMEOUT(ToggleMute, 8, None);
   
-  // === Toggling speaker mute === // Emily (Switch_modder), used the above as base
-  auto toggleSpeakerMuteEnterAction = [this]() {
-    DrawSpeakerMuteAnimation();
-  };
-  SET_ENTER_ACTION(ToggleSpeakerMute, toggleSpeakerMuteEnterAction);
-  // TODO (VIC-11606): don't use timeout and instead wait for mute anim to end
-  SET_TIMEOUT(ToggleSpeakerMute, 8, None);
-
   // === AlexaNotification ===
   auto alexaNotification = [this]() {
     DrawAlexaNotification();
@@ -749,7 +740,6 @@ bool FaceInfoScreenManager::IsActivelyDrawingToScreen() const
     case ScreenName::None:
     case ScreenName::Pairing:
     case ScreenName::ToggleMute:
-    case ScreenName::ToggleSpeakerMute: // Emily (Switch_modder)
     case ScreenName::AlexaNotification:
     case ScreenName::SelfTestRunning:
       return false;
@@ -2050,23 +2040,6 @@ void FaceInfoScreenManager::DrawMuteAnimation()
   const bool shouldRenderInEyeHue = false;
   _animationStreamer->SetStreamingAnimation(animName, 0, 1, shouldInterrupt,
                                             shouldOverrideEyeHue, shouldRenderInEyeHue);
-  
-}
-  
-void FaceInfoScreenManager::DrawSpeakerMuteAnimation() // Emily (Switch_modder), Copied from above
-{
-  if( _currScreen == nullptr ) {
-    return;
-  }
-  const bool speakerMuted = _context->GetMicDataSystem()->IsSpeakerMuted();
-  // The value of muted was set prior to this method call, so indicates a transition _to_ that state,
-  // so play the on/off or off/on anim to reflect that
-  const std::string animName = speakerMuted ? "anim_speakerstate_speakeroff_01" : "anim_speakerstate_speakeron_01";
-  const bool shouldInterrupt = true;
-  const bool shouldOverrideEyeHue = true;
-  const bool shouldRenderInEyeHue = false;
-  _animationStreamer->SetStreamingAnimation(animName, 0, 1, shouldInterrupt,
-                                            shouldOverrideEyeHue, shouldRenderInEyeHue);
 
 }
 
@@ -2323,30 +2296,6 @@ void FaceInfoScreenManager::ToggleMute(const std::string& reason)
     SetScreen(ScreenName::ToggleMute);
   }
 }
-
-void FaceInfoScreenManager::ToggleSpeakerMute(const std::string& reason) // Emily (Switch_modder), Copied from above
-{
-  _context->GetMicDataSystem()->ToggleSpeakerMute();
-
-  if(_isSpeakerMuted) {
-    DASMSG(speaker_off_message, "robot.speaker_off", "Speaker disabled (muted)");
-    DASMSG_SET(s1, reason, "reason (how it was toggled)");
-    DASMSG_SEND();
-  }
-  else {
-    DASMSG(speaker_on_message, "robot.speaker_on", "Speaker enabled (unmuted)");
-    DASMSG_SET(s1, reason, "reason (how it was toggled)");
-    DASMSG_SEND();
-  }
-
-  if ((_currScreen != nullptr) && (_currScreen->GetName() == ScreenName::ToggleSpeakerMute)) {
-    // abort current animation and restart new one
-    DrawSpeakerMuteAnimation();
-    _currScreen->RestartTimeout();
-  } else {
-    SetScreen(ScreenName::ToggleSpeakerMute);
-  }
-}
   
 void FaceInfoScreenManager::StartAlexaNotification()
 {
@@ -2487,7 +2436,6 @@ bool FaceInfoScreenManager::CanEnterPairingFromScreen( const ScreenName& screenN
     case ScreenName::AlexaPairingFailed:
     case ScreenName::AlexaPairingExpired:
     case ScreenName::ToggleMute:
-    case ScreenName::ToggleSpeakerMute: // Emily (Switch_modder)
     case ScreenName::AlexaNotification:
       return true;
     default:
@@ -2516,7 +2464,6 @@ bool FaceInfoScreenManager::ScreenNeedsWait(const ScreenName& screenName) const
     case ScreenName::AlexaPairingFailed:
     case ScreenName::AlexaPairingExpired:
     case ScreenName::ToggleMute:
-    case ScreenName::ToggleSpeakerMute: // Emily (Switch_modder)
     case ScreenName::AlexaNotification:
       return true;
     default:
