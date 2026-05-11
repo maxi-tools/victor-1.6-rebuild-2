@@ -111,8 +111,6 @@ public:
                                                bool strictCooldown = false,
                                                int recursionCount = 0) const;
 
-  bool IsAnimationGroup(const std::string& group) const;
-
   // Tell animation process to play the specified animation
   // If a non-empty callback is specified, the actionTag of the calling action must be specified
   Result PlayAnimByName(const std::string& animName,

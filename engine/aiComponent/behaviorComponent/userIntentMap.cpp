@@ -12,13 +12,11 @@
 
 #include "engine/aiComponent/behaviorComponent/userIntentMap.h"
 
-#include "clad/types/behaviorComponent/userIntent.h"
 #include "clad/types/featureGateTypes.h"
-#include "coretech/common/engine/jsonTools.h"
-#include "engine/components/animationComponent.h"
+#include "engine/aiComponent/behaviorComponent/userIntents.h"
 #include "engine/cozmoContext.h"
-#include "engine/moodSystem/moodManager.h"
 #include "engine/utils/cozmoFeatureGate.h"
+#include "coretech/common/engine/jsonTools.h"
 #include "json/json.h"
 #include "util/featureGate/featureGate.h"
 #include "util/logging/logging.h"
@@ -41,20 +39,12 @@ const char* kCloudVariableNumericsKey = "cloud_numerics";
 const char* kAppVariableSubstitutionsKey = "app_substitutions";
 const char* kAppVariableNumericsKey = "app_numerics";
 const char* kFeatureGateKey = "feature_gate";
-const char* kSimpleVoiceResponsesKey = "simple_voice_responses";
-const char* kResponseKey = "response";
 
 const char* kDebugName = "UserIntentMap";
 }
 
-// defined in the cpp to hide UserIntent class definition from userIntentMap.h
-struct SimpleVoiceResponseMap {
-  std::map<std::string, UserIntent> map;
-};
-
 UserIntentMap::UserIntentMap(const Json::Value& config, const CozmoContext* ctx)
-  : _simpleCloudResponseMap( new SimpleVoiceResponseMap )
-  , _unmatchedUserIntent{ USER_INTENT(unmatched_intent) }
+  : _unmatchedUserIntent{ USER_INTENT(unmatched_intent) }
 {
   // for validation
   std::unordered_set<UserIntentTag> foundUserIntent;
@@ -64,30 +54,6 @@ UserIntentMap::UserIntentMap(const Json::Value& config, const CozmoContext* ctx)
               "UserIntentMap.InvalidConfig",
               "expected to find group '%s'",
               kUserIntentMapKey);
-
-  // return true if this feature passes the gate (or no gate is enabled)
-  auto featureGateOK = [ctx](const Json::Value& jsonGroup, const std::string& intentStr) {
-    const std::string& featureName = jsonGroup.get( kFeatureGateKey, "" ).asString();
-    if( !featureName.empty() && (ctx != nullptr) ) {
-      FeatureType feature = FeatureType::Invalid;
-      ANKI_VERIFY( FeatureTypeFromString( featureName, feature ),
-                   "UserIntentMap.Ctor.InvalidFeature",
-                   "Unknown feature gate type '%s' for intent '%s'",
-                   featureName.c_str(),
-                   intentStr.c_str() );
-      const bool featureEnabled = ctx->GetFeatureGate()->IsFeatureEnabled( feature );
-      if( !featureEnabled ) {
-        PRINT_NAMED_INFO( "UserIntentMap.Ctor.FeatureGated",
-                          "Disabled feature '%s' is gating intent '%s'",
-                          featureName.c_str(),
-                          intentStr.c_str() );
-        return false;
-        // this will be an unmatched intent!
-      }
-    }
-    // feature gate passed or not specified, OK
-    return true;
-  };
 
   for( const auto& mapping : config[kUserIntentMapKey] ) {
     const std::string& userIntentStr = JsonTools::ParseString(mapping, kUserIntentKey, kDebugName);
@@ -99,10 +65,27 @@ UserIntentMap::UserIntentMap(const Json::Value& config, const CozmoContext* ctx)
                  kUserIntentKey,
                  userIntentStr.c_str() );
 
-    if( !featureGateOK(mapping, userIntentStr) ) {
-      // this will be an unmatched intent!
-      gatedUserIntent.insert( intentTag );
-      continue;
+    // check if this user intent is enabled (feature gate), and skip it if not
+    {
+      const std::string& featureName = mapping.get( kFeatureGateKey, "" ).asString();
+      if( !featureName.empty() && (ctx != nullptr) ) {
+        FeatureType feature = FeatureType::Invalid;
+        ANKI_VERIFY( FeatureTypeFromString( featureName, feature ),
+                     "UserIntentMap.Ctor.InvalidFeature",
+                     "Unknown feature gate type '%s' for intent '%s'",
+                     featureName.c_str(),
+                     userIntentStr.c_str() );
+        const bool featureEnabled = ctx->GetFeatureGate()->IsFeatureEnabled( feature );
+        if( !featureEnabled ) {
+          PRINT_NAMED_INFO( "UserIntentMap.Ctor.FeatureGated",
+                            "Disabled feature '%s' is gating intent '%s'",
+                            featureName.c_str(),
+                            userIntentStr.c_str() );
+          // this will be an unmatched intent!
+          gatedUserIntent.insert( intentTag );
+          continue;
+        }
+      }
     }
     
     foundUserIntent.insert( intentTag );
@@ -125,7 +108,7 @@ UserIntentMap::UserIntentMap(const Json::Value& config, const CozmoContext* ctx)
         if( !subs.isNull() ) {
           for( const auto& fromStr : subs.getMemberNames() ) {
             const auto& to = subs[fromStr];
-            if( ANKI_VERIFY( !to.isNull(), "UserIntentMap.Ctor.InvalidConfig.MissingSubstitution", "Missing value") ) {
+            if( ANKI_VERIFY( !to.isNull(), "UserIntentMap.Ctor.WTF", "Missing value") ) {
               const auto& toStr = to.asString();
               varSubstitutions.emplace_back( SanitationActions{fromStr, toStr, false} );
             }
@@ -168,7 +151,7 @@ UserIntentMap::UserIntentMap(const Json::Value& config, const CozmoContext* ctx)
       std::vector<const char*> validKeys = {
         kCloudIntentKey, kCloudVariableSubstitutionsKey, kCloudVariableNumericsKey,
         kAppIntentKey, kAppVariableSubstitutionsKey, kAppVariableNumericsKey,
-        kUserIntentKey, kFeatureGateKey, kTestUserIntentParsingKey, kSimpleVoiceResponsesKey, kResponseKey
+        kUserIntentKey, kFeatureGateKey, kTestUserIntentParsingKey,
       };
       std::vector<std::string> badKeys;
       const bool hasBadKeys = JsonTools::HasUnexpectedKeys( mapping, validKeys, badKeys );
@@ -185,49 +168,6 @@ UserIntentMap::UserIntentMap(const Json::Value& config, const CozmoContext* ctx)
                         UserIntentTagToString(intentTag) );
       }
     }
-  }
-
-  for( const auto& simpleResponseGroup : config[kSimpleVoiceResponsesKey] ) {
-
-    const std::string& cloudIntent = JsonTools::ParseString(simpleResponseGroup, kCloudIntentKey, kDebugName);
-
-    if( !featureGateOK(simpleResponseGroup, cloudIntent) ) {
-      // skip this mapping because it is feature-flag disabled
-      continue;
-    }
-
-    if( _cloudToUserMap.find(cloudIntent) != _cloudToUserMap.end() ) {
-      LOG_ERROR("UserIntentMap.Ctor.InvalidConfig.DuplicateCloudIntent.Normal",
-                "Cloud intent '%s' specified in %s is already defined as a normal response",
-                cloudIntent.c_str(),
-                kSimpleVoiceResponsesKey);
-      continue;
-    }
-
-    if( _simpleCloudResponseMap->map.find(cloudIntent) != _simpleCloudResponseMap->map.end() ) {
-      LOG_ERROR("UserIntentMap.Ctor.InvalidConfig.DuplicateCloudIntent.Simple",
-                "Cloud intent '%s' specified in %s is already defined as another simple response",
-                cloudIntent.c_str(),
-                kSimpleVoiceResponsesKey);
-      continue;
-    }
-
-    // set default feature to a "basic voice command"
-    MetaUserIntent_SimpleVoiceResponse response("", "", ActiveFeature::BasicVoiceCommand);
-    const bool jsonOK = response.SetFromJSON( simpleResponseGroup[kResponseKey] );
-    if( !jsonOK ) {
-      LOG_ERROR("UserIntentMap.Ctor.InvalidConfig.SimpleResponseParseFail.Response",
-                "Could not parse simple voice response for cloud intent '%s'",
-                cloudIntent.c_str() );
-      continue;
-    }
-
-    // NOTE: in order to check the validity of anim groups and emotion events, we need access to more
-    // components than we have here. For this reason, a separate function VerifySimpleVoiceResponses should be
-    // called to do the error checking
-
-    _simpleCloudResponseMap->map.emplace(cloudIntent, std::move(response));
-
   }
 
   std::string unmatchedString = JsonTools::ParseString(config, kUnmatchedKey, kDebugName);
@@ -258,81 +198,21 @@ UserIntentMap::UserIntentMap(const Json::Value& config, const CozmoContext* ctx)
   }
 }
 
-UserIntentMap::~UserIntentMap()
-{
-}
-
-bool UserIntentMap::VerifySimpleVoiceResponses(const AnimationComponent& animComponent,
-                                               const MoodManager& moodManager)
-{
-  if( _simpleCloudResponseMap == nullptr ) {
-    LOG_ERROR("UserIntentMap.VerifySimpleVoiceResponses.NoMap",
-              "Map is null, has this component been properly constructed?");
-    return false;
-  }
-
-  bool ok = true;
-
-  for( auto mapIt = _simpleCloudResponseMap->map.begin(); mapIt != _simpleCloudResponseMap->map.end(); ) {
-    const auto& response = mapIt->second.Get_simple_voice_response();
-
-    if( !response.emotion_event.empty() ) {
-      if( !moodManager.IsValidEmotionEvent( response.emotion_event ) ) {
-        LOG_ERROR("UserIntentMap.VerifySimpleVoiceResponses.InvalidEmotionEvent",
-                  "response to cloud intent '%s' has invalid emotion event '%s'",
-                  mapIt->first.c_str(),
-                  response.emotion_event.c_str());
-        ok = false;
-      }
-    }
-
-    if( !response.anim_group.empty() ) {
-      if( !animComponent.IsAnimationGroup( response.anim_group ) ) {
-        LOG_ERROR("UserIntentMap.VerifySimpleVoiceResponses.InvalidAnimGroup",
-                  "response to cloud intent '%s' has invalid anim group '%s', removing from map",
-                  mapIt->first.c_str(),
-                  response.anim_group.c_str());
-        ok = false;
-        // without a valid anim group, the response will not visibly play, so it's better to remove this from
-        // the map and have the cloud intent result in "unmatched intent" rather than a silent failure
-        mapIt = _simpleCloudResponseMap->map.erase( mapIt );
-        continue;
-      }
-    }
-
-    ++mapIt;
-  }
-
-  return ok;
-}
-
-
 UserIntentTag UserIntentMap::GetUserIntentFromCloudIntent(const std::string& cloudIntent) const
 {
   using Tag = std::underlying_type<UserIntentTag>::type;
   auto it = _cloudToUserMap.find(cloudIntent);
   if( it != _cloudToUserMap.end() ) {
-    DEV_ASSERT( static_cast<Tag>( it->second.userIntent ) < static_cast<Tag>( USER_INTENT(INVALID) ),
-                "Invalid intent value" );
+    DEV_ASSERT( static_cast<Tag>( it->second.userIntent ) < static_cast<Tag>( USER_INTENT(INVALID) ), "Invalid intent value" );
     return it->second.userIntent;
   }
   else {
-
-    // check if it's a simple cloud response
-    auto simpleResponseIter = _simpleCloudResponseMap->map.find(cloudIntent);
-    if( simpleResponseIter != _simpleCloudResponseMap->map.end() ) {
-      return UserIntentTag::simple_voice_response;
-    }
-    else {
-
-      DEV_ASSERT( static_cast<Tag>(_unmatchedUserIntent) < static_cast<Tag>(USER_INTENT(INVALID)),
-                  "Invalid intent value" );
-      PRINT_NAMED_WARNING("UserIntentMap.NoCloudIntentMatch",
-                          "No match for cloud intent '%s', returning default user intent '%s'",
-                          cloudIntent.c_str(),
-                          UserIntentTagToString(_unmatchedUserIntent));
-      return _unmatchedUserIntent;
-    }
+    DEV_ASSERT( static_cast<Tag>(_unmatchedUserIntent) < static_cast<Tag>(USER_INTENT(INVALID)), "Invalid intent value" );
+    PRINT_NAMED_WARNING("UserIntentMap.NoCloudIntentMatch",
+                        "No match for cloud intent '%s', returning default user intent '%s'",
+                        cloudIntent.c_str(),
+                        UserIntentTagToString(_unmatchedUserIntent));
+    return _unmatchedUserIntent;
   }
 }
 
@@ -447,22 +327,6 @@ void UserIntentMap::SanitizeVariables(const std::string& intent,
         }
       }
     }
-  }
-}
-
-const UserIntent& UserIntentMap::GetSimpleVoiceResponse(const std::string& cloudIntent) const
-{
-  auto it = _simpleCloudResponseMap->map.find(cloudIntent);
-  if( it == _simpleCloudResponseMap->map.end() ) {
-    LOG_ERROR("UserIntentMap.GetSimpleVoiceResponse.NoSimpleResponse",
-              "Cloud intent '%s' not found among the %zu intents in the simple response map",
-              cloudIntent.c_str(),
-              _simpleCloudResponseMap->map.size());
-    static const UserIntent sDefaultIntent;
-    return sDefaultIntent;
-  }
-  else {
-    return it->second;
   }
 }
 

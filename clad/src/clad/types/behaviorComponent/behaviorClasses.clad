@@ -17,7 +17,6 @@ enum uint_8 BehaviorClass {
   HighLevelAI,
   LookAroundInPlace,
   ResetState,
-  SimpleVoiceResponse,
   StayOnChargerUntilCharged,
   Wait,
 
