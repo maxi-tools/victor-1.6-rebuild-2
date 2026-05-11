@@ -1215,6 +1215,7 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
   doublePressDetected = false;
 
   // The maximum amount of time allowed between button releases
+  // to register as a double press
   static const u32 kDoublePressWindow_ms   = 400;
 
   const u32  curTime_ms         = BaseStationTimer::getInstance()->GetCurrentTimeStamp();
@@ -1222,37 +1223,28 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
 
   if (buttonPressedEvent) {
     if (mightBeDoublePress) {
-      lastPressTime_ms = 0;
-      doublePressPending = true;
-    } else {
-      lastPressTime_ms = curTime_ms;
-    }
-    singlePressPending = false;
-  } else if (buttonReleasedEvent) {
-    if (lastPressTime_ms > 0) {
-      singlePressPending = true;
-    } else if (doublePressPending) {
-      doublePressPending = false;
-      doublePressDetected = true;
-    }
-    // clx29
-    else if (lastPressTime_ms > 0 && !doublePressPending) { // first release
-      singlePressPending = true;
-    }
-
-    shutdownSent = false;
-
-  } else if ((singlePressPending || doublePressPending) && !mightBeDoublePress) { //clx29 double press pending
-    if (doublePressPending) {
-        doublePressDetected = true;
-        doublePressPending = false;
-        lastPressTime_ms = 0;
-    } else if (singlePressPending) {
-        singlePressDetected = true;
+        lastPressTime_ms = curTime_ms;
+        doublePressPending = true;
         singlePressPending = false;
+    } else {
+        lastPressTime_ms = curTime_ms;
     }
+} else if (buttonReleasedEvent) {
 
+    if (doublePressPending) {
+        doublePressPending = false;
+        doublePressDetected = true;
+        lastPressTime_ms = 0;
+   }  else if (lastPressTime_ms > 0) {
+        singlePressPending = false;
+        singlePressDetected = true;
+        lastPressTime_ms = 0;
+    }
+    shutdownSent = false;
+  } else if (singlePressPending && !mightBeDoublePress) {
     lastPressTime_ms = 0;
+    singlePressPending = false;
+    singlePressDetected = true;
   }
 
   // Check if button was held down long enough for shutdown animation to start
@@ -1268,8 +1260,6 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
     singlePressDetected = false;
     doublePressPending  = false;
     doublePressDetected = false;
-    triplePressPending  = false; // clx29
-    triplePressDetected = false; // clx29
     shutdownSent        = true;
   }
 
@@ -1280,9 +1270,6 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
     kFakeButtonPressType = 0;
   } else if( kFakeButtonPressType == 2 ) { // double press
     doublePressDetected = true;
-    kFakeButtonPressType = 0;
-  } else if( kFakeButtonPressType == 3 ) { // triple press - clx29
-    triplePressDetected = true;
     kFakeButtonPressType = 0;
   }
 #endif
