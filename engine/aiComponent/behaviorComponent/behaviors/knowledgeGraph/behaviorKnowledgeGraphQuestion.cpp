@@ -143,27 +143,25 @@ namespace Anki
       // Don't generate ready text for intent graph responses
       if (intentDataPtr == nullptr) {
         // start generating our ready text; if we fail, then we'll simply exit the behavior, and cry :(
-        if (_readyTTSWrapper.SetUtteranceText(readyText, {}))
-        {
-          auto callback = [this]()
-          {
-            // after our getin animation, we can prompt the user to speak
-            _dVars.state = EState::WaitingToStream;
-
-            // Need to loop this forever and we'll just cancel it on our own after a timeout
-            DelegateIfInControl(new ReselectingLoopAnimationAction(AnimationTrigger::KnowledgeGraphListening));
-          };
-
-          // open up streaming after we play our get-in to avoid motor noise
-          DelegateIfInControl(new TriggerLiftSafeAnimationAction(AnimationTrigger::KnowledgeGraphGetIn), callback);
-        }
-        else
-        {
+        if (!_readyTTSWrapper.SetUtteranceText(readyText, {})) {
           PRINT_NAMED_WARNING("BehaviorKnowledgeGraphQuestion", "Failed to generate Ready TTS (%s)", readyText.c_str());
+          return;
         }
       } else {
-        PRINT_NAMED_WARNING("BehaviorKnowledgeGraphQuestion", "Not generating ready text because this is a intent graph request.");
+        PRINT_NAMED_WARNING("BehaviorKnowledgeGraphQuestion", "Not generating TTS as this is a intent graph response");
       }
+
+      auto callback = [this]()
+      {
+        // after our getin animation, we can prompt the user to speak
+        _dVars.state = EState::WaitingToStream;
+
+        // Need to loop this forever and we'll just cancel it on our own after a timeout
+        DelegateIfInControl(new ReselectingLoopAnimationAction(AnimationTrigger::KnowledgeGraphListening));
+      };
+
+      // open up streaming after we play our get-in to avoid motor noise
+      DelegateIfInControl(new TriggerLiftSafeAnimationAction(AnimationTrigger::KnowledgeGraphGetIn), callback);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
