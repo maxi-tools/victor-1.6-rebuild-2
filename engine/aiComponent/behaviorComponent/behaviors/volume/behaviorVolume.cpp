@@ -124,7 +124,7 @@ void BehaviorVolume::OnBehaviorActivated()
   SettingsManager& settings = GetBEI().GetSettingsManager();
   EVolumeLevel newVolumeLevel;
 
-  if ( ExternalNotificationPending()) {
+  if (ExternalNotificationPending()) {
     // a little quirk: we don't use the volume from the volume change notification.
     // instead, we read it again from settings, to get the most up to date volume
     // (one less piece of state to keep around in a potentially invalid state...)
@@ -177,6 +177,7 @@ void BehaviorVolume::OnBehaviorActivated()
   const auto it = kVolumeLevelAnimMap.find(newVolumeLevel);
   if(it == kVolumeLevelAnimMap.end()){
     // we don't have an anim designated for this volume level (probably because it's MUTE)
+    // We have mute now so this isn't a issue
     LOG_WARNING("BehaviorVolume.OnBehaviorActivated.NoAnimForLevel",
                 "No animation mapped for volume level %u", static_cast<uint32_t>(newVolumeLevel));
     return;
