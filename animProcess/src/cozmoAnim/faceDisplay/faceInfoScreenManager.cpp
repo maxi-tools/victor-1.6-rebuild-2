@@ -1198,13 +1198,11 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
                                                 bool& buttonPressedEvent,
                                                 bool& buttonReleasedEvent,
                                                 bool& singlePressDetected, 
-                                                bool& doublePressDetected,
-                                                bool& triplePressDetected) // clx29
+                                                bool& doublePressDetected)
 {
   static u32  lastPressTime_ms   = 0;
   static bool singlePressPending = false;
   static bool doublePressPending = false;
-  static bool triplePressPending = false; // clx29
   static bool buttonWasPressed   = false;
 
   // Whether or not the shutdown message was already sent
@@ -1215,7 +1213,6 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
   buttonWasPressed = buttonPressed;
   singlePressDetected = false;
   doublePressDetected = false;
-  triplePressDetected = false; // clx29 (reset)
 
   // The maximum amount of time allowed between button releases
   static const u32 kDoublePressWindow_ms   = 400;
@@ -1223,28 +1220,20 @@ void FaceInfoScreenManager::CheckForButtonEvent(const bool buttonPressed,
   const u32  curTime_ms         = BaseStationTimer::getInstance()->GetCurrentTimeStamp();
   const bool mightBeDoublePress = (lastPressTime_ms > 0) && (curTime_ms - lastPressTime_ms < kDoublePressWindow_ms);
 
-  const bool mightBeTriplePress = doublePressPending && mightBeDoublePress;
-
   if (buttonPressedEvent) {
-    if (mightBeTriplePress) { //clx29 && // Emily (Switch_modder)
-      doublePressPending = false;
-      singlePressPending = false;
-      triplePressPending = true;
-      lastPressTime_ms = curTime_ms;
-    } else if (mightBeDoublePress) {
-      lastPressTime_ms = curTime_ms;
+    if (mightBeDoublePress) {
+      lastPressTime_ms = 0;
       doublePressPending = true;
-      singlePressPending = false;
     } else {
       lastPressTime_ms = curTime_ms;
     }
+    singlePressPending = false;
   } else if (buttonReleasedEvent) {
-    if (triplePressPending) {  // clx29 && // Emily (Switch_modder)
-      triplePressPending = false;
-      triplePressDetected = true;
-      lastPressTime_ms = 0;
+    if (lastPressTime_ms > 0) {
+      singlePressPending = true;
+    } else if (doublePressPending) {
       doublePressPending = false;
-      singlePressPending = false;
+      doublePressDetected = true;
     }
     // clx29
     else if (lastPressTime_ms > 0 && !doublePressPending) { // first release
@@ -1315,13 +1304,11 @@ void FaceInfoScreenManager::ProcessMenuNavigation(const RobotState& state)
   bool buttonReleasedEvent;
   bool singlePressDetected;
   bool doublePressDetected;
-  bool triplePressDetected; //added by claudix29
   CheckForButtonEvent(buttonIsPressed, 
                       buttonPressedEvent, 
                       buttonReleasedEvent, 
                       singlePressDetected, 
-                      doublePressDetected,
-                      triplePressDetected);
+                      doublePressDetected);
 
   const bool isOnCharger = static_cast<bool>(state.status & (uint32_t)RobotStatusFlag::IS_ON_CHARGER);
 
