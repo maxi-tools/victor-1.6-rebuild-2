@@ -859,17 +859,16 @@ void MicDataSystem::ToggleMicMute()
   _micMuted = !_micMuted;
   _micDataProcessor->MuteMics(_micMuted);
   
-  if (!_speakerMuted) { // play audio event for changing mic mute state as long as the speaker isn't muted
-    auto* audioController = _context->GetAudioController();
-    if (audioController != nullptr) {
-      using namespace AudioEngine;
-      using GenericEvent = AudioMetaData::GameEvent::GenericEvent;
-      const auto eventID = ToAudioEventId( _micMuted
-                                           ? GenericEvent::Play__Robot_Vic_Alexa__Sfx_Sml_State_Privacy_Mode_On
-                                           : GenericEvent::Play__Robot_Vic_Alexa__Sfx_Sml_State_Privacy_Mode_Off );
-      const auto gameObject = ToAudioGameObject(AudioMetaData::GameObjectType::Default);
-      audioController->PostAudioEvent( eventID, gameObject );
-    }
+  // play audio event for changing mic mute state
+  auto* audioController = _context->GetAudioController();
+  if (audioController != nullptr) {
+    using namespace AudioEngine;
+    using GenericEvent = AudioMetaData::GameEvent::GenericEvent;
+    const auto eventID = ToAudioEventId( _micMuted
+                                         ? GenericEvent::Play__Robot_Vic_Alexa__Sfx_Sml_State_Privacy_Mode_On
+                                         : GenericEvent::Play__Robot_Vic_Alexa__Sfx_Sml_State_Privacy_Mode_Off );
+    const auto gameObject = ToAudioGameObject(AudioMetaData::GameObjectType::Default);
+    audioController->PostAudioEvent( eventID, gameObject );
   }
 
   // Note that Alexa also has a method to stopStreamingMicrophoneData, but without the wakeword,
@@ -890,30 +889,6 @@ void MicDataSystem::ToggleMicMute()
     Util::FileUtils::TouchFile( muteFile );
   } else if( Util::FileUtils::FileExists( muteFile ) ) {
     Util::FileUtils::DeleteFile( muteFile );
-  }
-}
-
-void MicDataSystem::ToggleSpeakerMute()
-{
-  // TODO: This method is absolutely shitty, I hate this just as much as the next person
-  _speakerMuted = !_speakerMuted;
-
-  // play audio event for changing mic mute state
-  auto* audioController = _context->GetAudioController();
-  if (audioController != nullptr) {
-    using namespace AudioEngine;
-    using GenericEvent = AudioMetaData::GameEvent::GenericEvent;
-    const auto eventID = ToAudioEventId( _speakerMuted ? GenericEvent::Play__Robot_Vic_Alexa__Sfx_Sml_State_Privacy_Mode_On : GenericEvent::Play__Robot_Vic_Alexa__Sfx_Sml_State_Privacy_Mode_Off );
-    const auto gameObject = ToAudioGameObject(AudioMetaData::GameObjectType::Default);
-    audioController->PostAudioEvent( eventID, gameObject );
-  }
-
-  // toggle backpack lights
-  if( _context != nullptr ) {
-    auto* bplComp = _context->GetBackpackLightComponent();
-    if( bplComp != nullptr ) {
-      bplComp->SetMicMute( _speakerMuted );
-    }
   }
 }
   
