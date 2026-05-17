@@ -54,7 +54,9 @@ namespace Anki {
       
       virtual const Point3f& GetSize() const override { return _size; }
       
-      const Vision::KnownMarker* GetMarker() const { return _marker; }
+      const Vision::KnownMarker* GetMarkerNorm() const { return _markerHomeNorm; }
+      const Vision::KnownMarker* GetMarkerEyes() const { return _markerEyes; }
+      const Vision::KnownMarker* GetMarkerExtra() const { return _marker; }
       
       // Return pose of the robot when it's in the charger
       Pose3d GetRobotDockedPose()  const;
@@ -128,6 +130,8 @@ namespace Anki {
       
       Point3f _size;
       
+      const Vision::KnownMarker* _markerHomeNorm;
+      const Vision::KnownMarker* _markerEyes;
       const Vision::KnownMarker* _marker;
       
       mutable VizManager::Handle_t _vizHandle;

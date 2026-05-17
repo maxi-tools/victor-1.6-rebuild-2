@@ -194,11 +194,11 @@ namespace Anki {
       }
 
       Result Init() {
-        struct stat buffer;
-        int rc = stat("/data/blackOnWhite", &buffer);
-        if(rc == 0) {
-          blackOnWhite = true;
-        }
+        // struct stat buffer;
+        // int rc = stat("/data/blackOnWhite", &buffer);
+        // if(rc == 0) {
+        //   blackOnWhite = true;
+        // }
         Reset();
         return RESULT_OK;
       }
@@ -828,7 +828,8 @@ namespace Anki {
 
               if (isBlackBL && !cliffHasSeenBlackBL_) {
                 cliffHasSeenBlackBL_ = true;
-                AnkiInfo("PAP.BACKUP_ON_CHARGER.SawBlackBL", "");
+                blackOnWhite = robotHasStartedPitching_;
+                AnkiInfo("PAP.BACKUP_ON_CHARGER.SawBlackBL", "blackOnWhite: %d", blackOnWhite);
               }
               if (isBlackBR && !cliffHasSeenBlackBR_) {
                 cliffHasSeenBlackBR_ = true;

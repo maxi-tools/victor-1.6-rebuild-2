@@ -1283,7 +1283,9 @@ Result VisionSystem::DetectMarkers(Vision::ImageCache& imageCache,
   {
     auto & marker = *markerIter;
     
-    if(meterFromChargerOnly && (marker.GetCode() != Vision::MARKER_CHARGER_HOME))
+    if(meterFromChargerOnly && (marker.GetCode() != Vision::MARKER_CHARGER_HOME) &&
+                              (marker.GetCode() != Vision::MARKER_CHARGER) &&
+                              (marker.GetCode() != Vision::MARKER_CHARGER_HOME_EYES))
     {
       markerIter = _currentResult.observedMarkers.erase(markerIter);
       continue;

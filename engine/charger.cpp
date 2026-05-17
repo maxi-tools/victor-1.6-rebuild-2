@@ -72,7 +72,9 @@ namespace Anki {
       Pose3d frontPose(-M_PI_2_F, Z_AXIS_3D(),
                        Point3f{kSlopeLength+kPlatformLength, 0, kMarkerZPosition});
       
-      _marker = &AddMarker(Vision::MARKER_CHARGER_HOME, frontPose, Point2f(kMarkerWidth, kMarkerHeight));
+      _markerHomeNorm = &AddMarker(Vision::MARKER_CHARGER_HOME, frontPose, Point2f(kMarkerWidth, kMarkerHeight));
+      _markerEyes = &AddMarker(Vision::MARKER_CHARGER_HOME_EYES, frontPose, Point2f(kMarkerWidth, kMarkerHeight));
+      _marker  = &AddMarker(Vision::MARKER_CHARGER,           frontPose, Point2f(kMarkerWidth, kMarkerHeight));
       
     } // Charger() Constructor
 
@@ -93,18 +95,16 @@ namespace Anki {
         case PreActionPose::ActionType::PLACE_RELATIVE:
         {
           const float halfHeight = 0.5f * kHeight;
-          
-          Pose3d poseWrtMarker(M_PI_2_F + kChargerPreDockPoseOffset.GetAngle().ToFloat(),
-                               Z_AXIS_3D(),
-                               {kChargerPreDockPoseOffset.GetX() , -kChargerPreDockPoseOffset.GetY(), -halfHeight},
-                               _marker->GetPose());
-          
-          poseWrtMarker.SetName("Charger" + std::to_string(GetID().GetValue()) + "PreActionPose");
-          
-          preActionPoses.emplace_back(type,
-                                      _marker,
-                                      poseWrtMarker,
-                                      0);
+
+          for (const auto* m : {_markerHomeNorm, _markerEyes, _marker}) {
+            Pose3d poseWrtMarker(M_PI_2_F + kChargerPreDockPoseOffset.GetAngle().ToFloat(),
+                                Z_AXIS_3D(),
+                                {kChargerPreDockPoseOffset.GetX(), -kChargerPreDockPoseOffset.GetY(), -halfHeight},
+                                m->GetPose());
+
+            poseWrtMarker.SetName("Charger" + std::to_string(GetID().GetValue()) + "PreActionPose");
+            preActionPoses.emplace_back(type, m, poseWrtMarker, 0);
+          }
           break;
         }
         case PreActionPose::ActionType::ENTRY:
