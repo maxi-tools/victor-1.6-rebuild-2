@@ -71,8 +71,11 @@ WeatherConditionType WeatherIntentParser::GetCondition(const UserIntent_WeatherR
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 tm WeatherIntentParser::GetLocalDateTime(const UserIntent_WeatherResponse& weatherIntent) const
 {
-  tm localTime;
-  strptime(weatherIntent.localDateTime.c_str(), "%Y-%m-%dT%H:%M%S-", &localTime);
+  tm localTime = {};
+  localTime.tm_hour = 12;
+  if (!weatherIntent.localDateTime.empty()) {
+    strptime(weatherIntent.localDateTime.c_str(), "%Y-%m-%d %H:%M", &localTime);
+  }
   return localTime;
 }
 
