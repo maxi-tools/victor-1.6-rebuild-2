@@ -234,7 +234,7 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_SCREEN(Main, Network);
 
   // Start rebuild custom screens
-  ADD_SCREEN_WITH_TEXT(AutoUpdates, AutoUpdates, {"TOGGLE UPDATING?"});
+  ADD_SCREEN_WITH_TEXT(AutoUpdates, AutoUpdates, {checkAutoUpdatesOn() ? "DISABLE UPDATES?" : "ENABLE UPDATES?"});
   ADD_SCREEN_WITH_TEXT(BackpackLights, BackpackLights, {_wireoslights() ? "USE ANKI LIGHTS?" : "USE WIREOS LIGHTS?"});
   ADD_SCREEN_WITH_TEXT(BootRecovery, BootRecovery, {"RECOVERY MODE?"});
   ADD_SCREEN_WITH_TEXT(ConfigurationSubmenu, ConfigurationSubmenu, {"CONFIGURATION PAGE 1"});
@@ -301,6 +301,8 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   auto noneEnterFcn = [this]() {
     // Restore power mode as specified by engine
     SendAnimToRobot(_calmModeMsgOnNone);
+
+    // Create the inital save files dir
     if (!Util::FileUtils::DirectoryExists("/data/data/rebuild/")) {
       Util::FileUtils::CreateDirectory("/data/data/rebuild/");
     }
@@ -402,7 +404,7 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu3, "NEXT PAGE", incSlotUp);
   ADD_MENU_ITEM_WITH_ACTION(ConfigurationSubmenu3, "PREV PAGE", incSlotDown);
   ADD_MENU_ITEM(ConfigurationSubmenu3, _using30fps() ? "TOGGLE 60 FPS" : "TOGGLE 30 FPS", Toggle30fps);
-  ADD_MENU_ITEM(ConfigurationSubmenu3, "TOGGLE UPDATING", AutoUpdates);
+  ADD_MENU_ITEM(ConfigurationSubmenu3, checkAutoUpdatesOn() ? "DISABLE UPDATING" : "ENABLE UPDATING", AutoUpdates);
   DISABLE_TIMEOUT(ConfigurationSubmenu)
 
   // === Screen 4 ===
@@ -514,13 +516,18 @@ void FaceInfoScreenManager::Init(Anim::AnimContext* context, Anim::AnimationStre
   ADD_MENU_ITEM_WITH_ACTION(Toggle30fps, "CONFIRM", confirmToggle30fps);
 
   // === Disable/Enable auto updates ===
-  FaceInfoScreen::MenuItemAction confirmAutoUpdates = [] {
+  FaceInfoScreen::MenuItemAction confirmAutoUpdates = [this] {
     LOG_INFO("FaceInfoScreenManager.AutoUpdates.Confirmed", "");
     if (checkAutoUpdatesOn()) {
       Util::FileUtils::WriteFile("/data/data/user-do-not-auto-update", "");
     } else {
       Util::FileUtils::DeleteFile("/data/data/user-do-not-auto-update");
     }
+
+    if (!_isRestartRequired) {
+      _isRestartRequired = true;
+    }
+
     return ScreenName::ConfigurationSubmenu3;
   };
   ADD_MENU_ITEM(AutoUpdates, "EXIT", ConfigurationSubmenu3);
