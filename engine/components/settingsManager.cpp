@@ -759,11 +759,6 @@ namespace Anki
                         command.push_back("1");
                         const bool success = ExecCommand(command);
                         LOG_WARNING("SettingsManager.RebuildEyes.CreateInital", success ? "Inital files created" : "Failed to create inital files");
-                        // if (success) {
-                        //   LOG_WARNING("SettingsManager.RebuildEyes.CreateInital", "Inital files created");
-                        // } else {
-                        //   LOG_WARNING("SettingsManager.RebuildEyes.CreateInital", "Failed to create inital files");
-                        // }
                       }
 
                       float adjustedSaturation;
@@ -809,11 +804,6 @@ namespace Anki
                           command.push_back(std::to_string(color.hue));
                           const bool success = ExecCommand(command);
                           LOG_WARNING("SettingsManager.RebuildEyes.5HourlySave", success ? "Current values saved" : "Failed to save values");
-                          // if (success) {
-                          //   LOG_WARNING("SettingsManager.RebuildEyes.5HourlySave", "Current values saved");
-                          // } else {
-                          //   LOG_WARNING("SettingsManager.RebuildEyes.5HourlySave", "Failed to save values");
-                          // }
                         }
                       }
 
@@ -845,11 +835,6 @@ namespace Anki
                           command.push_back(std::to_string(color.hue));
                           const bool success = ExecCommand(command);
                           LOG_WARNING("SettingsManager.RebuildEyes.SaveValues", success ? "Current values saved" : "Failed to save values");
-                          // if (success) {
-                          //   LOG_WARNING("SettingsManager.RebuildEyes.SaveValues", "Current values saved");
-                          // } else {
-                          //   LOG_WARNING("SettingsManager.RebuildEyes.SaveValues", "Failed to save values");
-                          // }
                           _stopRebuildEyeThread.store(true, std::memory_order_release);
                           break;
                       }

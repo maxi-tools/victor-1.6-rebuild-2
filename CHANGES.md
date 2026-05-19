@@ -25,10 +25,8 @@
 - Custom backpack lights! (Following [this](https://github.com/os-vector/wire-os-victor/pull/30) pr)
 - Screen doesn't flash as much when booting up (ThommoMC's fix)
 - New onboarding animation
-- More clear pairing screen
 - Less screen tearing on Vector 2.0
 - New image for when Vector can't calibrate his gyro
-- Triple click back button to mute (Ported from [ClaudOS](https://github.com/claudix29/claud-os-victor))
 - Bunch of old prototype anims have been reimplemented
 - Unused sleep and low battery anim implmemented
 
@@ -47,6 +45,11 @@
 - ReactToHand drives faster and is more forgiving on the angle
 - Classic beta alexa can be toggled in the CCIS configuration menu
 - Weather is more specific
+- Cozmo cube support ported from Viccyware ([Thank you AmyMC](https://github.com/Victor-Rebuild/victor-1.6-rebuild-2/commit/137bd65e4aa70f498ed29fcabb8f3b4bed32c0d8))
+- Prototype Eyes charger support ([Thank you AmyMC](https://github.com/Victor-Rebuild/victor-1.6-rebuild-2/commit/4316fa8b7ee710ca2540265a8e95821ece5f4674))
+- Can mute Vector from Voice Command (Hey Vector, Volume Mute)
+- Power Off/Reboot Voice Command
+- Intent Graph optimizations
 
 ## Cloud changes
 - vic-cloud that works with wirepod and regular servers from WireOS
