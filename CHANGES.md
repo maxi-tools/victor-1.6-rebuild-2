@@ -49,7 +49,6 @@
 - Prototype Eyes charger support ([Thank you AmyMC](https://github.com/Victor-Rebuild/victor-1.6-rebuild-2/commit/4316fa8b7ee710ca2540265a8e95821ece5f4674))
 - Can mute Vector from Voice Command (Hey Vector, Volume Mute)
 - Power Off/Reboot Voice Command
-- Intent Graph optimizations
 
 ## Cloud changes
 - vic-cloud that works with wirepod and regular servers from WireOS
@@ -69,3 +68,4 @@
 - Change slot option in CCIS to change Vector's system slot
 - Useful configuration menu in CCIS
 - Gamma correction and camera denoiser from WireOS
+- Intent Graph optimizations

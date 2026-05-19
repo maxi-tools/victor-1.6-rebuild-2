@@ -14,7 +14,8 @@
     "TimerUtilityCoordinator",
     "WeatherResponses",
     "TakeAPhotoCoordinator",
-    "ReactToRobotShakenSnowGlobe",
+    "ReactToRobotShaken",
+    // "ReactToRobotShakenSnowGlobe",
     "ReactToTouchPetting",
     "BasicVoiceCommands", // these are simple voice commands that we want to ignore obstacles
     "ReactToObstacle",
