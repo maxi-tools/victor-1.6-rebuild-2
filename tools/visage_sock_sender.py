@@ -20,6 +20,7 @@ import argparse
 import math
 import os
 import socket
+import stat
 import struct
 import sys
 import time
@@ -187,6 +188,9 @@ def parse_event(raw: bytes) -> Optional[dict]:
         return None
     if version != PROTOCOL_VERSION:
         return None
+    if payload_len > len(raw) - EVENT_HEADER_SIZE:
+        # truncated datagram — reject rather than slice garbage
+        return None
     payload = raw[EVENT_HEADER_SIZE:EVENT_HEADER_SIZE + payload_len]
     return {
         "kind": kind,
@@ -227,13 +231,22 @@ def main():
                    help="Request the event back-channel; received events printed to stderr.")
     args = p.parse_args()
 
+    if not math.isfinite(args.rate) or args.rate <= 0:
+        sys.exit("--rate must be a finite number > 0")
+
     if not args.target.startswith("unix:"):
         sys.exit("--target must be unix:<path>")
     consumer_path = args.target[len("unix:"):]
 
     sender_path = args.sender_path or f"/tmp/visage-sender-{os.getpid()}.sock"
+    # Only unlink stale Unix-domain sockets; refuse to delete arbitrary files
+    # an operator may have pointed --sender-path at by mistake.
     try:
-        os.unlink(sender_path)
+        st = os.lstat(sender_path)
+        if stat.S_ISSOCK(st.st_mode):
+            os.unlink(sender_path)
+        else:
+            sys.exit(f"--sender-path exists and is not a socket: {sender_path}")
     except FileNotFoundError:
         pass
 
@@ -309,7 +322,9 @@ def main():
     finally:
         s.close()
         try:
-            os.unlink(sender_path)
+            st = os.lstat(sender_path)
+            if stat.S_ISSOCK(st.st_mode):
+                os.unlink(sender_path)
         except FileNotFoundError:
             pass
 

@@ -149,10 +149,20 @@ bool BehaviorVisageRender::OpenSocket() {
   // Remove any stale socket file so we can rebind.
   ::unlink(_iConfig.socketPath.c_str());
 
+  if (_iConfig.socketPath.size() >= sizeof(sockaddr_un::sun_path)) {
+    PRINT_NAMED_ERROR("BehaviorVisageRender.OpenSocket.SocketPathTooLong",
+                      "socketPath len=%zu exceeds sun_path budget=%zu; refusing to bind silently truncated path.",
+                      _iConfig.socketPath.size(),
+                      sizeof(sockaddr_un::sun_path));
+    CloseSocket();
+    return false;
+  }
+
   struct sockaddr_un addr;
   std::memset(&addr, 0, sizeof(addr));
   addr.sun_family = AF_UNIX;
-  std::strncpy(addr.sun_path, _iConfig.socketPath.c_str(), sizeof(addr.sun_path) - 1);
+  std::memcpy(addr.sun_path, _iConfig.socketPath.data(), _iConfig.socketPath.size());
+  // sun_path is now NUL-terminated because the trailing byte was zeroed by memset.
 
   if (::bind(_dVars.sock_fd, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) < 0) {
     PRINT_NAMED_ERROR("BehaviorVisageRender.OpenSocket.BindFailed",
@@ -226,7 +236,14 @@ uint32_t NowMs() {
 void BehaviorVisageRender::DrainAndEmit() {
   std::array<uint8_t, kFrameBytes + 256> buf;  // small slack for malformed jumbo frames
 
-  while (true) {
+  // Cap per-tick datagrams so a misbehaving sender cannot starve the behavior tick.
+  // 64 covers a burst of one second's worth of 60 fps frames; any sender exceeding
+  // that is malfunctioning and we'll see the backlog drained over subsequent ticks.
+  constexpr size_t kMaxFramesPerTick = 64;
+  size_t framesProcessed = 0;
+
+  while (framesProcessed < kMaxFramesPerTick) {
+    ++framesProcessed;
     struct sockaddr_un peer;
     socklen_t peer_len = sizeof(peer);
     std::memset(&peer, 0, sizeof(peer));
@@ -288,11 +305,16 @@ void BehaviorVisageRender::DrainAndEmit() {
                                      : _iConfig.frameDuration_ms;
     const bool interrupt = (frame.flags & kFlagInterruptRunning) || _iConfig.interruptRunning;
 
+    // Honor interruptRunning: if anim is currently playing a canned animation and the
+    // sender (or this behavior's config) has NOT asked to interrupt, skip this frame.
+    // Mirrors the gating in AnimationComponent::HandleMessage(DisplayProceduralFace).
+    auto& anim = GetBEI().GetRobotInfo()._robot.GetAnimationComponent();
+    if (anim.IsPlayingAnimation() && !interrupt) {
+      continue;
+    }
+
     GetBEI().GetRobotInfo()._robot.SendRobotMessage<RobotInterface::DisplayProceduralFace>(
         pfp, duration_ms);
-    (void)interrupt;  // interruptRunning is consumed engine-side in the GameToEngine path; the
-                      // direct-to-robot path here always replaces the current procedural face
-                      // params, so this is effectively "interrupt = true" already.
   }
 }
 
