@@ -141,6 +141,7 @@ enum uint_16 BehaviorID {
 
   // victorBehaviorTree
   DefaultTextToSpeechLoop,
+  VisageRender,
 
   // victorBehaviorTree/driveOffCharger
   DriveOffChargerCube,

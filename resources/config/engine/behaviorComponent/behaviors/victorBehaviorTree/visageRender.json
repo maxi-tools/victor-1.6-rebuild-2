@@ -1,0 +1,14 @@
+{
+  \"behaviorID\"    : \"VisageRender\",
+  \"behaviorClass\" : \"VisageRender\",
+
+  \"socketPath\"          : \"/run/visage.sock\",
+  \"frameDuration_ms\"    : 33,
+  \"stalenessTimeout_ms\" : 250,
+  \"keepAliveMode\"       : \"suppress\",
+  \"interruptRunning\"    : true,
+
+  \"wantsToBeActivatedWhenOnCharger\"      : true,
+  \"wantsToBeActivatedWhenOffTreads\"      : true,
+  \"wantsToBeActivatedWhenCarryingObject\" : true
+}
