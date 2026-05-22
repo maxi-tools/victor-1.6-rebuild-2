@@ -57,28 +57,9 @@ protected:
   virtual void OnBehaviorDeactivated() override;
   virtual void BehaviorUpdate() override;
 
-private:
-  enum class KeepAliveMode { Suppress, Compose };
-
-  struct InstanceConfig {
-    std::string   socketPath;          // default "/run/visage.sock"
-    uint32_t      frameDuration_ms;    // 33 (30 fps) or 16 (60 fps)
-    uint32_t      stalenessTimeout_ms; // default 250
-    KeepAliveMode keepAliveMode;       // default Suppress
-    bool          interruptRunning;    // default true
-  };
-
-  struct DynamicVariables {
-    int       sock_fd;
-    bool      had_first_frame;
-    uint32_t  last_frame_received_ms;
-    uint32_t  frames_received;
-    uint32_t  frames_dropped_invalid;
-    // Subscribed senders for the event back-channel: key = stringified sun_path
-    std::unordered_map<std::string, std::vector<uint8_t>> event_subscribers;
-  };
-
-  // --- Wire formats (must match Documentation/visage_sock_protocol.md v1) ---
+public:
+  // --- Wire formats (must match maxi-visage Documentation/visage_sock_protocol.md v1) ---
+  // Public so unit tests and any in-process consumer can assert layout invariants.
 
   static constexpr uint32_t kFrameMagic     = 0x47534956u; // 'V','I','S','G' LE
   static constexpr uint32_t kEventMagic     = 0x54564556u; // 'V','E','V','T' LE
@@ -122,6 +103,27 @@ private:
     float    right_eye[kEyeAxisCount];
   } __attribute__((packed));
   static_assert(sizeof(VisageFrame) == kFrameBytes, "VisageFrame must be 240 bytes");
+
+private:
+  enum class KeepAliveMode { Suppress, Compose };
+
+  struct InstanceConfig {
+    std::string   socketPath;          // default "/run/visage.sock"
+    uint32_t      frameDuration_ms;    // 33 (30 fps) or 16 (60 fps)
+    uint32_t      stalenessTimeout_ms; // default 250
+    KeepAliveMode keepAliveMode;       // default Suppress
+    bool          interruptRunning;    // default true
+  };
+
+  struct DynamicVariables {
+    int       sock_fd;
+    bool      had_first_frame;
+    uint32_t  last_frame_received_ms;
+    uint32_t  frames_received;
+    uint32_t  frames_dropped_invalid;
+    // Subscribed senders for the event back-channel: key = stringified sun_path
+    std::unordered_map<std::string, std::vector<uint8_t>> event_subscribers;
+  };
 
   InstanceConfig   _iConfig;
   DynamicVariables _dVars;
