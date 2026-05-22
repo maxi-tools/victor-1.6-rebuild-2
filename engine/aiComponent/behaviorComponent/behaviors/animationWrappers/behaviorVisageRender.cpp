@@ -7,20 +7,26 @@
 #include "engine/aiComponent/behaviorComponent/behaviors/animationWrappers/behaviorVisageRender.h"
 
 #include "clad/externalInterface/messageGameToEngine.h"
+#include "clad/robotInterface/messageRobotToEngine.h"
+#include "clad/robotInterface/messageEngineToRobot.h"
 #include "clad/types/proceduralFaceTypes.h"
 
 #include "engine/aiComponent/behaviorComponent/behaviorExternalInterface/behaviorExternalInterface.h"
+#include "engine/components/animationComponent.h"
 #include "engine/robot.h"
 #include "engine/robotInterface/messageHandler.h"
 
 #include "util/logging/logging.h"
 
 #include <algorithm>
+#include <array>
 #include <cerrno>
+#include <chrono>
 #include <cmath>
 #include <cstring>
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/un.h>
 #include <unistd.h>
 
@@ -199,44 +205,185 @@ bool BehaviorVisageRender::ValidateFrame(const VisageFrame& frame) const {
 }
 
 // -----------------------------------------------------------------------------
-// DrainAndEmit / CheckStaleness / EmitNeutralFace
-//
-// Stubs land here in task #18 (skeleton). Concrete recv loop + DisplayProceduralFace
-// emission lands in tasks #19 (socket reader) and #20 (emission).
+// DrainAndEmit — recv loop, validate, translate to DisplayProceduralFace, send.
 // -----------------------------------------------------------------------------
 
+namespace {
+// Single static_assert check: ProceduralEyeParameter::NumParameters == 25.
+// The frame format relies on this layout; if Anki ever changes the enum width,
+// the build breaks here rather than silently mis-mapping axes.
+static_assert(static_cast<size_t>(ProceduralEyeParameter::NumParameters) ==
+                  BehaviorVisageRender::kEyeAxisCount,
+              "ProceduralEyeParameter must have 25 entries; update kEyeAxisCount if Anki changes it.");
+
+uint32_t NowMs() {
+  using clock = std::chrono::steady_clock;
+  const auto t = clock::now().time_since_epoch();
+  return static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(t).count());
+}
+} // namespace
+
 void BehaviorVisageRender::DrainAndEmit() {
-  // TODO(task #19, #20): recv loop, validate, translate to DisplayProceduralFace, send.
+  std::array<uint8_t, kFrameBytes + 256> buf;  // small slack for malformed jumbo frames
+
+  while (true) {
+    struct sockaddr_un peer;
+    socklen_t peer_len = sizeof(peer);
+    std::memset(&peer, 0, sizeof(peer));
+
+    ssize_t n = ::recvfrom(_dVars.sock_fd, buf.data(), buf.size(), MSG_DONTWAIT,
+                           reinterpret_cast<struct sockaddr*>(&peer), &peer_len);
+    if (n < 0) {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) break;
+      PRINT_NAMED_WARNING("BehaviorVisageRender.DrainAndEmit.RecvError",
+                          "recvfrom: %s", std::strerror(errno));
+      break;
+    }
+    if (n == 0) break;
+
+    if (static_cast<size_t>(n) != kFrameBytes) {
+      _dVars.frames_dropped_invalid++;
+      continue;
+    }
+
+    VisageFrame frame;
+    std::memcpy(&frame, buf.data(), kFrameBytes);
+
+    if (!ValidateFrame(frame)) {
+      _dVars.frames_dropped_invalid++;
+      continue;
+    }
+
+    // Handshake / event subscription bookkeeping.
+    if (frame.flags & kFlagSubscribeEvents) {
+      SubscribeSender(peer, peer_len);
+    }
+
+    _dVars.frames_received++;
+    _dVars.last_frame_received_ms = NowMs();
+
+    if (frame.flags & kFlagSenderIsIdle) {
+      // Sender signalled idle: let staleness path handle it next tick.
+      // (Don't emit this frame to the face; idle frames are advisory only.)
+      continue;
+    }
+
+    _dVars.had_first_frame = true;
+
+    // Translate VisageFrame → ProceduralFaceParameters and send.
+    ProceduralFaceParameters pfp;
+    pfp.faceAngle_deg   = frame.face_angle_deg;
+    pfp.faceCenX        = frame.face_center_x;
+    pfp.faceCenY        = frame.face_center_y;
+    pfp.faceScaleX      = frame.face_scale_x;
+    pfp.faceScaleY      = frame.face_scale_y;
+    pfp.scanlineOpacity = frame.scanline_opacity;
+    for (size_t i = 0; i < kEyeAxisCount; ++i) {
+      pfp.leftEye[i]  = frame.left_eye[i];
+      pfp.rightEye[i] = frame.right_eye[i];
+    }
+
+    const uint32_t duration_ms = (frame.duration_ms != 0)
+                                     ? frame.duration_ms
+                                     : _iConfig.frameDuration_ms;
+    const bool interrupt = (frame.flags & kFlagInterruptRunning) || _iConfig.interruptRunning;
+
+    GetBEI().GetRobotInfo()._robot.SendRobotMessage<RobotInterface::DisplayProceduralFace>(
+        pfp, duration_ms);
+    (void)interrupt;  // interruptRunning is consumed engine-side in the GameToEngine path; the
+                      // direct-to-robot path here always replaces the current procedural face
+                      // params, so this is effectively "interrupt = true" already.
+  }
 }
 
 void BehaviorVisageRender::CheckStaleness() {
   if (!_dVars.had_first_frame) return;
 
-  // TODO(task #19): pull tick time from behaviorExternalInterface clock.
-  // For now, leave staleness handling for the socket-reader task.
+  const uint32_t now_ms = NowMs();
+  if (now_ms - _dVars.last_frame_received_ms > _iConfig.stalenessTimeout_ms) {
+    PRINT_NAMED_INFO("BehaviorVisageRender.CheckStaleness.SenderGone",
+                     "%u ms since last frame; emitting neutral and yielding.",
+                     now_ms - _dVars.last_frame_received_ms);
+    EmitNeutralFace();
+    _dVars.had_first_frame = false;
+    CancelSelf();
+  }
 }
 
 void BehaviorVisageRender::EmitNeutralFace() {
-  // TODO(task #20): construct neutral DisplayProceduralFace and send.
+  ProceduralFaceParameters pfp;
+  pfp.faceAngle_deg   = 0.0f;
+  pfp.faceCenX        = 0.0f;
+  pfp.faceCenY        = 0.0f;
+  pfp.faceScaleX      = 1.0f;
+  pfp.faceScaleY      = 1.0f;
+  pfp.scanlineOpacity = 1.0f;
+  for (size_t i = 0; i < kEyeAxisCount; ++i) {
+    pfp.leftEye[i]  = 0.0f;
+    pfp.rightEye[i] = 0.0f;
+  }
+  // Scale axes default to nominal 1.0
+  pfp.leftEye[static_cast<size_t>(ProceduralEyeParameter::EyeScaleX)]  = 1.0f;
+  pfp.leftEye[static_cast<size_t>(ProceduralEyeParameter::EyeScaleY)]  = 1.0f;
+  pfp.rightEye[static_cast<size_t>(ProceduralEyeParameter::EyeScaleX)] = 1.0f;
+  pfp.rightEye[static_cast<size_t>(ProceduralEyeParameter::EyeScaleY)] = 1.0f;
+
+  GetBEI().GetRobotInfo()._robot.SendRobotMessage<RobotInterface::DisplayProceduralFace>(
+      pfp, /*duration_ms=*/200);  // 200 ms fade-to-neutral
 }
 
 // -----------------------------------------------------------------------------
 // Event back-channel
-//
-// Stubs here; concrete behavior-arbiter subscription + event emission lands in task #21.
 // -----------------------------------------------------------------------------
 
 void BehaviorVisageRender::EmitEvent(EventKind kind, const uint8_t* payload, uint32_t payload_len) {
-  // TODO(task #21): build VisageEvent and sendto each subscriber.
-  (void)kind;
-  (void)payload;
-  (void)payload_len;
+  if (_dVars.sock_fd < 0) return;
+  if (_dVars.event_subscribers.empty()) return;
+
+  // Build VisageEvent header + payload into a contiguous buffer.
+  // Header layout matches visage_sock_protocol.md v1.
+  std::vector<uint8_t> packet;
+  packet.reserve(16 + payload_len);
+
+  auto append_u32 = [&](uint32_t v) {
+    for (int i = 0; i < 4; ++i) packet.push_back(static_cast<uint8_t>((v >> (8 * i)) & 0xFFu));
+  };
+  auto append_u16 = [&](uint16_t v) {
+    for (int i = 0; i < 2; ++i) packet.push_back(static_cast<uint8_t>((v >> (8 * i)) & 0xFFu));
+  };
+
+  append_u32(kEventMagic);
+  append_u16(kProtocolVersion);
+  append_u16(static_cast<uint16_t>(kind));
+  append_u32(NowMs() * 1000u);  // approximate scene_clock_us; fine for sender-side ordering
+  append_u32(payload_len);
+  if (payload && payload_len > 0) {
+    packet.insert(packet.end(), payload, payload + payload_len);
+  }
+
+  // Send to every subscriber. Don't remove on error; senders may be temporarily blocked.
+  for (const auto& kv : _dVars.event_subscribers) {
+    const std::vector<uint8_t>& raw_addr = kv.second;
+    if (raw_addr.size() < sizeof(sockaddr_un::sun_family)) continue;
+    const sockaddr* sa = reinterpret_cast<const sockaddr*>(raw_addr.data());
+    socklen_t sa_len = static_cast<socklen_t>(raw_addr.size());
+    ssize_t r = ::sendto(_dVars.sock_fd, packet.data(), packet.size(), MSG_DONTWAIT, sa, sa_len);
+    if (r < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
+      PRINT_NAMED_DEBUG("BehaviorVisageRender.EmitEvent.SendError",
+                        "sendto subscriber %s: %s", kv.first.c_str(), std::strerror(errno));
+    }
+  }
 }
 
 void BehaviorVisageRender::SubscribeSender(const sockaddr_un& addr, socklen_t addr_len) {
-  // TODO(task #21): record sender address.
-  (void)addr;
-  (void)addr_len;
+  // Key by sun_path so re-subscribes from the same sender are idempotent.
+  std::string key(addr.sun_path,
+                  ::strnlen(addr.sun_path, sizeof(addr.sun_path)));
+  if (key.empty()) return;  // anonymous bind; can't reach back
+
+  std::vector<uint8_t> raw(reinterpret_cast<const uint8_t*>(&addr),
+                           reinterpret_cast<const uint8_t*>(&addr) + addr_len);
+  _dVars.event_subscribers[key] = std::move(raw);
 }
 
 void BehaviorVisageRender::OnWakeWordBegin()      { EmitEvent(EventKind::WakeWordBegin, nullptr, 0); }
