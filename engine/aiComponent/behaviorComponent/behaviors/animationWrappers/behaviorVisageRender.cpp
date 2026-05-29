@@ -15,6 +15,9 @@
 #include "engine/components/animationComponent.h"
 #include "engine/robot.h"
 #include "engine/robotInterface/messageHandler.h"
+#include "engine/aiComponent/behaviorComponent/behaviorExternalInterface/beiRobotInfo.h"
+#include "engine/externalInterface/externalInterface.h"
+#include "clad/externalInterface/messageGameToEngine.h"
 
 #include "util/logging/logging.h"
 
@@ -308,13 +311,13 @@ void BehaviorVisageRender::DrainAndEmit() {
     // Honor interruptRunning: if anim is currently playing a canned animation and the
     // sender (or this behavior's config) has NOT asked to interrupt, skip this frame.
     // Mirrors the gating in AnimationComponent::HandleMessage(DisplayProceduralFace).
-    auto& anim = GetBEI().GetRobotInfo()._robot.GetAnimationComponent();
+    auto& anim = GetBEI().GetAnimationComponent();
     if (anim.IsPlayingAnimation() && !interrupt) {
       continue;
     }
 
-    GetBEI().GetRobotInfo()._robot.SendRobotMessage<RobotInterface::DisplayProceduralFace>(
-        pfp, duration_ms);
+    GetBEI().GetRobotInfo().GetExternalInterface()->BroadcastToEngine<ExternalInterface::DisplayProceduralFace>(
+        pfp, duration_ms, interrupt);
   }
 }
 
@@ -350,8 +353,8 @@ void BehaviorVisageRender::EmitNeutralFace() {
   pfp.rightEye[static_cast<size_t>(ProceduralEyeParameter::EyeScaleX)] = 1.0f;
   pfp.rightEye[static_cast<size_t>(ProceduralEyeParameter::EyeScaleY)] = 1.0f;
 
-  GetBEI().GetRobotInfo()._robot.SendRobotMessage<RobotInterface::DisplayProceduralFace>(
-      pfp, /*duration_ms=*/200);  // 200 ms fade-to-neutral
+  GetBEI().GetRobotInfo().GetExternalInterface()->BroadcastToEngine<ExternalInterface::DisplayProceduralFace>(
+      pfp, /*duration_ms=*/200, /*interruptRunning=*/true);  // 200 ms fade-to-neutral
 }
 
 // -----------------------------------------------------------------------------
